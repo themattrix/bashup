@@ -1,19 +1,17 @@
 from setuptools import setup
 
 setup(
-    name='{{ package_name }}',
-    version='{{ package_version }}',
-    packages=('{{ package_dir_name }}',),
-    url='https://github.com/{{ github_user }}/{{ repo_name }}',
+    name='bashup',
+    version='0.0.1',
+    packages=('bashup',),
+    url='https://github.com/themattrix/bashup',
     license='MIT',
-    author='{{ author_name }}',
-    author_email='{{ author_email }}',
-    install_requires=(
-        {{ install_requires|pytuple }}),
-    tests_require=(
-        {{ tests_require|pytuple }}),
+    author='Matthew Tardiff',
+    author_email='mattrix@gmail.com',
+    install_requires=(),
+    tests_require=(),
     description=(
-        {{ short_description|pystring }}),
+        'A (toy) language that compiles to bash.'),
     classifiers=(
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 2',

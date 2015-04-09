@@ -1,6 +1,6 @@
 FROM ubuntu:14.04
 
-MAINTAINER {{ author_name }} <{{ author_email }}>
+MAINTAINER Matthew Tardiff <mattrix@gmail.com>
 
 ENV DEBIAN_FRONTEND noninteractive
 

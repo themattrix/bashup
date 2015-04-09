@@ -15,16 +15,16 @@ install:
 - pip install coveralls
 - python setup.py develop
 before_script:
-- flake8 setup.py "{{ package_dir_name }}"
-- pyflakes setup.py "{{ package_dir_name }}"
-script: nosetests --with-doctest --doctest-options="+NORMALIZE_WHITESPACE" --with-coverage --cover-tests --cover-inclusive --cover-package="{{ package_dir_name }}" "{{ package_dir_name }}"
+- flake8 setup.py "bashup"
+- pyflakes setup.py "bashup"
+script: nosetests --with-doctest --doctest-options="+NORMALIZE_WHITESPACE" --with-coverage --cover-tests --cover-inclusive --cover-package="bashup" "bashup"
 after_success: coveralls
 deploy:
   provider: pypi
-  user: {{ github_user }}
+  user: themattrix
   distributions: sdist bdist_wheel
   on:
     python: 2.7
     tags: true
     all_branches: true
-    repo: {{ github_user }}/{{ repo_name }}
+    repo: themattrix/bashup
