@@ -3,6 +3,8 @@ Bashup
 
 A (toy) language that compiles to bash.
 
+ **NOT YET OPERATIONAL**
+
 
 .. |Build| image:: https://travis-ci.org/themattrix/bashup.svg?branch=master
    :target: https://travis-ci.org/themattrix/bashup
