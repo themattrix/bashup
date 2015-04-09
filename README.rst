@@ -1,9 +1,12 @@
 Bashup
-===================================================================
+======
 
 A (toy) language that compiles to bash.
 
- **NOT YET OPERATIONAL**
+  *Just a spoonful of sugar makes the bashisms go down...*
+
+
+**NOT YET OPERATIONAL**
 
 
 .. |Build| image:: https://travis-ci.org/themattrix/bashup.svg?branch=master

@@ -1,90 +1,76 @@
 import pyparsing as pp
 
 
-def get_single_quoted_string():
-    return pp.QuotedString("'", multiline=True, unquoteResults=False)
+#
+# Private Helpers
+#
+
+# pylint: disable=pointless-statement, expression-not-assigned
+def __create_double_quoted_string():
+    name = pp.Word(pp.alphas + '_', pp.alphanums + '_')
+
+    capturing_subshell = pp.Forward()
+    double_quoted_string = pp.Forward()
+    variable = pp.Forward()
+
+    quoted_string = (
+        SINGLE_QUOTED_STRING | double_quoted_string)
+
+    string_component = (
+        pp.Literal('\\"')
+        | pp.Literal('\\$')
+        | pp.Literal('\\')
+        | pp.Word(pp.printables + '\n\r\t ', excludeChars='\\"$`')
+        | variable
+        | capturing_subshell
+        | pp.Word(pp.printables + '\n\r\t ', excludeChars='"')
+    )
+
+    paren_subshell_component = (
+        pp.Word(pp.printables + '\n\r\t ', excludeChars=')"')
+        | quoted_string)
+
+    backtick_subshell_component = (
+        pp.Word(pp.printables + '\n\r\t ', excludeChars='`"')
+        | quoted_string)
+
+    variable_component = (
+        pp.Word(pp.printables + '\n\r\t ', excludeChars='}"')
+        | quoted_string)
+
+    simple_variable = (
+        '$' + name)
+
+    complex_variable = (
+        '${' + pp.ZeroOrMore(variable_component) + '}')
+
+    variable << (
+        simple_variable | complex_variable)
+
+    paren_subshell = (
+        '$(' + pp.ZeroOrMore(paren_subshell_component) + ')')
+
+    backtick_subshell = (
+        '`' + pp.ZeroOrMore(backtick_subshell_component) + '`')
+
+    capturing_subshell << (
+        paren_subshell | backtick_subshell)
+
+    double_quoted_string << pp.Combine(
+        '"' + pp.ZeroOrMore(string_component) + '"')
+
+    return pp.originalTextFor(double_quoted_string)
 
 
-# TODO: test/implement get_double_quoted_string()
-# s = '''
-# "hello, $(echo "hi there,  `echo "what"`  $SIMPLE
-# ${COMPLEX##"${what:$(ls)}"} $(echo "boo") $(date)")
-# ) \\\\\\"bill\\wat\\""
-# '''
 #
-# name = pp.Word(alphas + '_', alphanums + '_')
-# capturingSubshell = pp.Forward()
-# doubleQuotedString = pp.Forward()
-# variable = pp.Forward()
-# stringComponent = (
-#     pp.Literal('\\"')
-#     | pp.Literal('\\$')
-#     | pp.Literal('\\')
-#     | pp.Word(pp.printables + '\n\t ', excludeChars='\\"$`')
-#     | variable
-#     | capturingSubshell)
-# parenSubshellComponent = (
-#     pp.Word(pp.printables + '\n\t ', excludeChars=')"')
-#     | doubleQuotedString)
-# backtickSubshellComponent = (
-#     pp.Word(pp.printables + '\n\t ', excludeChars='`"')
-#     | doubleQuotedString)
-# variableComponent = (
-#     pp.Word(pp.printables + '\n\t ', excludeChars='}"')
-#     | doubleQuotedString)
-# simpleVariable = '$' + name
-# complexVariable = '${' + pp.ZeroOrMore(variableComponent) + '}'
-# variable << (simpleVariable | complexVariable)
-# parenSubshell = '$(' + pp.ZeroOrMore(parenSubshellComponent) + ')'
-# backtickSubshell = '`' + pp.ZeroOrMore(backtickSubshellComponent) + '`'
-# capturingSubshell << (parenSubshell | backtickSubshell)
-# doubleQuotedString << pp.Combine('"' + pp.ZeroOrMore(stringComponent) + '"')
+# Public Parsers
 #
-# doubleQuotedString.parseString(s.strip()).asList()
 
+SINGLE_QUOTED_STRING = (
+    pp.QuotedString("'", multiline=True, unquoteResults=False))
 
-# TODO: move to fn.py, test/implement
-# s = '''
-# @fn some_fn
-#     hello=$what,
-#     foo=${nuts##""},
-#     bar=$(crazy),
-#     me=5,
-#     who="\\"goes\\" there $(echo "what")", third {
-# '''
-#
-# white = pp.White().suppress()
-# optionalWhite = pp.Optional(pp.White()).suppress()
-# name = pp.Word(pp.alphas + '_', pp.alphanums + '_')
-# singleQuotedString = pp.QuotedString("'", unquoteResults=False)
-# quotedString = singleQuotedString | doubleQuotedString
-# valueComponent = (
-#     variable
-#     | capturingSubshell
-#     | quotedString
-#     | pp.Word(pp.printables + '\t ', excludeChars='\'"$`,'))
-# value = pp.Combine(pp.OneOrMore(valueComponent))
-# defaultValue = pp.Literal('=').suppress() + value
-# parameter = pp.Group(name + pp.Optional(defaultValue))
-# parameterList = pp.delimitedList(parameter)
-#
-# fn = (
-#     '@fn'
-#     + white
-#     + name('fn_name')
-#     + pp.Optional(white + parameterList)('parameter_list')
-#     + optionalWhite
-#     + '{'
-# )
-#
-# results = fn.parseString(s).asDict()
-#
-# pprint(results)
-#
-# print('name........ ' + results['fn_name'])
-#
-# if 'parameter_list' in results:
-#     for p in results['parameter_list']:
-#         print('\nparameter... ' + p[0])
-#         if len(p) == 2:
-#             print('value....... ' + p[1])
+DOUBLE_QUOTED_STRING = (
+    __create_double_quoted_string())
+
+QUOTED_STRING = (
+    SINGLE_QUOTED_STRING | DOUBLE_QUOTED_STRING)
