@@ -8,7 +8,8 @@ setup(
     license='MIT',
     author='Matthew Tardiff',
     author_email='mattrix@gmail.com',
-    install_requires=(),
+    install_requires=(
+        'pyparsing',),
     tests_require=(),
     description=(
         'A (toy) language that compiles to bash.'),
