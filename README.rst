@@ -1,30 +1,7 @@
-Bashup |Version| |Build| |Coverage| |Health|
+Bashup
 ===================================================================
 
-|Compatibility| |Implementations| |Format| |Downloads|
-
 A (toy) language that compiles to bash.
-
-.. code:: python
-
-    # TODO: add super short usage
-
-
-Installation:
-
-.. code:: shell
-
-    $ pip install bashup
-
-.. TODO: longer description
-
-
-Example
--------
-
-.. code:: python
-
-    # TODO: add example
 
 
 .. |Build| image:: https://travis-ci.org/themattrix/bashup.svg?branch=master
