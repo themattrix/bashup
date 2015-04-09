@@ -82,6 +82,7 @@ def test_double_quoted_string_identity_scenarios():
         '''" $( ) ${ } ` ` "''',
         '''" $(${`'`'`})${$(`'$('`)}`$(${'${'})` "''',
         '''" $( ${ ` ` } ) ${ $( ` ` ) } ` $( ${ } ) ` "''',
+        '''"$(')"''',
         '"\n\r\t "',
         '"$(\n\r\t )"',
         '"${\n\r\t }"',
@@ -112,6 +113,9 @@ def test_double_quoted_string_trimmed_scenarios():
         test_scenario(
             '"\'"\'',
             '"\'"'),
+        test_scenario(
+            '"$(\'"\')',
+            '"$(\'"'),
         test_scenario(
             '"{p}"{p}'.format(p=__RAW_ALLOWED_IN_DOUBLE_QUOTES),
             '"{p}"'.format(p=__RAW_ALLOWED_IN_DOUBLE_QUOTES)),)
