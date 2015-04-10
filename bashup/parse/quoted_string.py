@@ -7,10 +7,7 @@ from bashup.parse.name import NAME
 SINGLE_QUOTED_STRING = (
     pp.QuotedString("'", multiline=True, unquoteResults=False))
 
-CAPTURING_SUBSHELL = pp.Forward()
 DOUBLE_QUOTED_STRING = pp.Forward()
-VARIABLE = pp.Forward()
-UNQUOTED_VALUE = pp.Forward()
 VALUE = pp.Forward()
 
 QUOTED_STRING = (
@@ -28,13 +25,13 @@ PAREN_SUBSHELL = (
 BACKTICK_SUBSHELL = (
     '`' + pp.ZeroOrMore(VALUE) + '`')
 
-CAPTURING_SUBSHELL << (
+CAPTURING_SUBSHELL = (
     PAREN_SUBSHELL | BACKTICK_SUBSHELL)
 
-VARIABLE << (
+VARIABLE = (
     SIMPLE_VARIABLE | COMPLEX_VARIABLE)
 
-UNQUOTED_VALUE << (
+UNQUOTED_VALUE = (
     pp.Word(pp.printables + '\n\r\t ', excludeChars='})"\\\'$`')
     | VARIABLE
     | CAPTURING_SUBSHELL)
