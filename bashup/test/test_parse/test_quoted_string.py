@@ -1,5 +1,6 @@
 import string
-from nose.tools import eq_
+import pyparsing as pp
+from nose.tools import eq_, raises
 from bashup.parse import quoted_string
 from bashup.test.test_parse.common import SimpleParseScenario
 
@@ -7,6 +8,10 @@ from bashup.test.test_parse.common import SimpleParseScenario
 #
 # Tests
 #
+
+def test_quoted_string_validation():
+    quoted_string.QUOTED_STRING.validate()
+
 
 def test_single_quoted_string_identity_scenarios():
     scenarios = (
@@ -72,6 +77,7 @@ def test_double_quoted_string_identity_scenarios():
         '" $(echo "nested") "',
         '" $(echo "$(echo "nested")") "',
         '''" $(echo '$(') "''',
+        '''" $('"') "''',
         '" `` "',
         '" `echo "nested"` "',
         '''" `echo '$('` "''',
@@ -106,9 +112,6 @@ def test_double_quoted_string_trimmed_scenarios():
             '"\'"\'',
             '"\'"'),
         SimpleParseScenario(
-            '"$(\'"\')',
-            '"$(\'"'),
-        SimpleParseScenario(
             '"{p}"{p}'.format(p=__RAW_ALLOWED_IN_DOUBLE_QUOTES),
             '"{p}"'.format(p=__RAW_ALLOWED_IN_DOUBLE_QUOTES)),)
 
@@ -118,6 +121,23 @@ def test_double_quoted_string_trimmed_scenarios():
 
     for s in scenarios:
         yield assert_double_quoted_string_trimmed_scenario, s
+
+
+def test_double_quoted_string_failure_scenarios():
+    scenarios = (
+        '"',
+        '"${""}',
+        '"$("")',
+        '"`""`',
+        '"\\"',
+        '"$(\'""\')',)
+
+    @raises(pp.ParseException)
+    def assert_double_quoted_string_failure_scenario(scenario):
+        __parse_double_quoted_string(scenario)
+
+    for s in scenarios:
+        yield assert_double_quoted_string_failure_scenario, s
 
 
 #
