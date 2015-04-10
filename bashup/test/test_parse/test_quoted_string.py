@@ -59,6 +59,7 @@ def test_double_quoted_string_identity_scenarios():
     scenarios = (
         '""',
         '"  "',
+        '" $) "',
         '" value "',
         '" $ "',
         '" $( "',
@@ -82,8 +83,9 @@ def test_double_quoted_string_identity_scenarios():
         '" `echo "nested"` "',
         '''" `echo '$('` "''',
         '''" $( ) ${ } ` ` "''',
-        '''" $(${`'`'`})${$(`'$('`)}`$(${'${'})` "''',
+        '''"$(${`'`'`})${$(`'$('`)}`$(${'${'})`"''',
         '''" $( ${ ` ` } ) ${ $( ` ` ) } ` $( ${ } ) ` "''',
+        '''" $( ${ ` '`' ` } ) ${ $( ` '$(' ` ) } ` $( ${ '${' } ) ` "''',
         '''"$(')"''',
         '"\n\r\t "',
         '"$(\n\r\t )"',
@@ -140,6 +142,74 @@ def test_double_quoted_string_failure_scenarios():
         yield assert_double_quoted_string_failure_scenario, s
 
 
+def test_double_quoted_string_components():
+    obnoxious_str = (
+        # """ $ """
+        """$~$%$^$&"""
+        """$#$*$@$-$!$?$$$_"""
+        """'${_}'"${_}"$_0,!@#^&*()-+=\\\\"""
+        """'}'"}"`}`$(})${}"""
+        """')'")"`)`$()${)}"""
+        """'`'"`"``$('`')${'`'}"""
+        """\\""")
+
+    expected_results_list = (
+        [['"',
+          [['${', [], '}'],
+           ['$(', [], ')'],
+           ['`', [], '`'],
+           ['${',
+            ['$', '~',
+             '$', '%',
+             '$', '^',
+             '$', '&',
+             ['$', '#'],
+             ['$', '*'],
+             ['$', '@'],
+             ['$', '-'],
+             ['$', '!'],
+             ['$', '?'],
+             ['$', '$'],
+             ['$', '_'],
+             "'${_}'",
+             ['"', [['${', ['_'], '}']], '"'],
+             ['$', '_0'],
+             ',!@#^&*()-+=\\\\',
+             "'}'",
+             ['"', ['}'], '"'],
+             ['`', ['}'], '`'],
+             ['$(', ['}'], ')'],
+             ['${', [], '}'],
+             "')'",
+             ['"', [')'], '"'],
+             ['`', [')'], '`'],
+             ['$(', [], ')'],
+             ['${', [')'], '}'],
+             "'`'",
+             ['"', ['`'], '"'],
+             ['`', [], '`'],
+             ['$(', ["'`'"], ')'],
+             ['${', ["'`'"], '}'],
+             '\\'],
+            '}']],
+          '"']])
+
+    to_parse = (
+        '"${{}}$()``\n\r\t ${{{o}}}"'
+        # '\n\r\t $({o})"'
+        # '\n\r\t `{o}`"'
+    ).format(o=obnoxious_str)
+
+    results_list = (
+        quoted_string
+        .DOUBLE_QUOTED_STRING_UNCOMBINED
+        .parseWithTabs()
+        .parseString(to_parse)
+        .asList())
+
+    eq_(results_list, expected_results_list)
+
+
 #
 # Test Helpers
 #
@@ -168,6 +238,13 @@ def __parse_single_quoted_string(to_parse):
 
 
 def __parse_double_quoted_string(to_parse):
+    print(
+        quoted_string
+        .DOUBLE_QUOTED_STRING_UNCOMBINED
+        .parseWithTabs()
+        .parseString(to_parse)
+        .asXML())
+
     return (
         quoted_string
         .DOUBLE_QUOTED_STRING('result')
