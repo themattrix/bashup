@@ -2,7 +2,8 @@ import string
 import pyparsing as pp
 from nose.tools import eq_, raises
 from bashup.parse import quoted_string
-from bashup.test.test_parse.common import SimpleParseScenario, diff
+from bashup.test.common import diff
+from bashup.test.test_parse.common import SimpleParseScenario
 
 
 #

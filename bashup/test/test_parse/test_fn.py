@@ -1,9 +1,11 @@
-from nose.tools import eq_
+import pyparsing as pp
+from nose.tools import eq_, raises
 from bashup.parse.fn import FN, Fn, Arg
-from bashup.test.test_parse.common import SimpleParseScenario, diff
+from bashup.test.common import diff
+from bashup.test.test_parse.common import SimpleParseScenario
 
 
-def test_fn_scenarios():
+def test_fn_success_scenarios():
     scenarios = (
         SimpleParseScenario(
             '@fn hello {',
@@ -95,3 +97,20 @@ def test_fn_scenarios():
 
     for s in scenarios:
         yield assert_fn_scenario, s
+
+
+def test_fn_failure_scenarios():
+    scenarios = (
+        '@fn {',
+        '@fn arg=value {',
+        '@fn name arg={',
+        '@fn name arg= {',
+        '@fn name arg={} {',)
+
+    @raises(pp.ParseException)
+    def assert_fn_failure_scenario(scenario):
+        result = FN.parseWithTabs().parseString(scenario)
+        print(result.asXML())  # pragma: no cover
+
+    for s in scenarios:
+        yield assert_fn_failure_scenario, s

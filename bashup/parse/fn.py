@@ -54,7 +54,7 @@ FN = pp.Group(
 
 class _Empty(object):  # pylint: disable=too-few-public-methods
     @staticmethod
-    def asList():     # pylint: disable=invalid-name
+    def asList():      # pylint: disable=invalid-name
         return []
 
 
