@@ -1,4 +1,4 @@
-from bashup.parse.quoted_string import VALUE
+from bashup.parse.common import VALUE
 
 
 # Just to make PyFlakes happy about "unused variables":

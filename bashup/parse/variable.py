@@ -1,4 +1,4 @@
-from bashup.parse.quoted_string import (
+from bashup.parse.common import (
     SIMPLE_VARIABLE,
     EXPANDED_VARIABLE,
     VARIABLE)
