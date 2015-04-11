@@ -37,8 +37,11 @@ ENCLOSED = pp.Forward()
 QUOTED_STRING = (
     SINGLE_QUOTED_STRING | DOUBLE_QUOTED_STRING_UNCOMBINED)
 
+STRING_ESCAPED = (
+    pp.Word('\\', '\\"$`', exact=2))
+
 SPECIAL_NAME = (
-    pp.Word(pp.nums + '#*@-!?$_', exact=1))
+    pp.Word(pp.nums + '#*@-!?_$', exact=1).leaveWhitespace())
 
 SIMPLE_VARIABLE = pp.Group(
     pp.Literal('$')('start')
@@ -65,8 +68,8 @@ VALUE << pp.OneOrMore(
     QUOTED_STRING | UNQUOTED_VALUE)
 
 STRING_COMPONENT = (
-    pp.Word('\\', '\\"$`', exact=2)('string_escaped')
-    | any_except('"$`')('string_other')
+    STRING_ESCAPED('string_escaped')
+    | any_except('"$`\\')('string_other')
     | UNQUOTED_VALUE)
 
 DOUBLE_QUOTED_STRING_UNCOMBINED << pp.Group(

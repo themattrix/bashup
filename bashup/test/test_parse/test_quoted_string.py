@@ -2,7 +2,7 @@ import string
 import pyparsing as pp
 from nose.tools import eq_, raises
 from bashup.parse import quoted_string
-from bashup.test.test_parse.common import SimpleParseScenario
+from bashup.test.test_parse.common import SimpleParseScenario, diff
 
 
 #
@@ -143,8 +143,16 @@ def test_double_quoted_string_failure_scenarios():
 
 
 def test_double_quoted_string_components():
+    """
+    Validate the internal structure of the string.
+
+    This test is in contrast to the rest which only care about the string as an
+    opaque object. It's useful to validate that the string was parsed as
+    expected instead of coincidentally working.
+    """
     obnoxious_str = (
-        # """ $ """
+        """ $ """
+        """ "\\$_" """
         """$~$%$^$&"""
         """$#$*$@$-$!$?$$$_"""
         """'${_}'"${_}"$_0,!@#^&*()-+=\\\\"""
@@ -153,13 +161,21 @@ def test_double_quoted_string_components():
         """'`'"`"``$('`')${'`'}"""
         """\\""")
 
+    to_parse = (
+        '"${{}}$()``\n\r\t ${{{o}}}"'
+        # '\n\r\t $({o})"'
+        # '\n\r\t `{o}`"'
+    ).format(o=obnoxious_str)
+
     expected_results_list = (
         [['"',
           [['${', [], '}'],
            ['$(', [], ')'],
            ['`', [], '`'],
            ['${',
-            ['$', '~',
+            ['$',
+             ['"', ['\\$', '_'], '"'],
+             '$', '~',
              '$', '%',
              '$', '^',
              '$', '&',
@@ -194,20 +210,21 @@ def test_double_quoted_string_components():
             '}']],
           '"']])
 
-    to_parse = (
-        '"${{}}$()``\n\r\t ${{{o}}}"'
-        # '\n\r\t $({o})"'
-        # '\n\r\t `{o}`"'
-    ).format(o=obnoxious_str)
-
-    results_list = (
+    parse_result = (
         quoted_string
         .DOUBLE_QUOTED_STRING_UNCOMBINED
         .parseWithTabs()
-        .parseString(to_parse)
-        .asList())
+        .parseString(to_parse))
 
-    eq_(results_list, expected_results_list)
+    results_list = parse_result.asList()
+
+    try:
+        eq_(results_list, expected_results_list)
+    except AssertionError:  # pragma: no cover
+        raise AssertionError(
+            parse_result.asXML()
+            + '\n\n'
+            + diff(results_list, expected_results_list))  # pragma: no cover
 
 
 #
