@@ -18,13 +18,9 @@ def test_value_identity_scenarios():
         '}',
         '}}',
         '$}}3',
-        '{',
-        '{{',
-        '3{{$',
         '\\',
         '\\\\',
-        '''$~$*$_0${}$()``''""a,Z\\\\$''',
-        ''' $~ $* $_0 ${} $() `` '' "" a,Z\\\\$ ''',)
+        '""\'\'$~$*$_0${}$()``0aA~a@%^*)}/.:?+=-_\\\\$',)
 
     def assert_value_identity_scenario(scenario):
         eq_(__parse_value(scenario), scenario)
@@ -34,56 +30,54 @@ def test_value_identity_scenarios():
 
 
 def test_value_trimmed_scenarios():
-    scenarios = (
-        SimpleParseScenario(
-            '1;2',
-            '1'),
-        SimpleParseScenario(
-            '1\n2',
-            '1'),
-        SimpleParseScenario(
-            '1\r2',
-            '1'),
-        SimpleParseScenario(
+    def generate_scenarios():
+        for c in __INVALID_VALUE_CHARS:
+            yield SimpleParseScenario(''.join(('1', c, '2')), '1')
+
+        yield SimpleParseScenario(
             '";";1',
-            '";"'),
-        SimpleParseScenario(
+            '";"')
+        yield SimpleParseScenario(
             "';';1",
-            "';'"),
-        SimpleParseScenario(
+            "';'")
+        yield SimpleParseScenario(
             "`;`;1",
-            "`;`"),
-        SimpleParseScenario(
+            "`;`")
+        yield SimpleParseScenario(
             "$(;);1",
-            "$(;)"),
-        SimpleParseScenario(
+            "$(;)")
+        yield SimpleParseScenario(
             "${;};1",
-            "${;}"),)
+            "${;}")
 
     def assert_value_trimmed_scenario(scenario):
         eq_(__parse_value(scenario.to_parse),
             scenario.expected_result)
 
-    for s in scenarios:
+    for s in generate_scenarios():
         yield assert_value_trimmed_scenario, s
 
 
 def test_value_failure_scenarios():
-    scenarios = (
-        '',
-        ';',)
+    def generate_scenarios():
+        yield ''
+        for c in __INVALID_VALUE_CHARS:
+            yield c
 
     @raises(pp.ParseException)
     def assert_value_failure_scenario(scenario):
         __parse_value(scenario)
 
-    for s in scenarios:
+    for s in generate_scenarios():
         yield assert_value_failure_scenario, s
 
 
 #
 # Test Helpers
 #
+
+__INVALID_VALUE_CHARS = '"\'`\n\r\t ;,{([#!&<>|'
+
 
 def __parse_value(to_parse):
     return (

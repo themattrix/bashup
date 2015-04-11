@@ -45,7 +45,7 @@ def __value(quoted):
     return (
         CAPTURING_SUBSHELL
         | VARIABLE
-        | __any_except('"' if quoted else '"\'$`\n\r;')(
+        | __any_except('"' if quoted else '"\'$`\n\r\t ;,{([#!&<>|')(
             'quoted_extras' if quoted else 'unquoted_extras'))
 
 
@@ -82,11 +82,6 @@ BACKTICK_SUBSHELL << __enclosed('`', '`')('backtick_subshell')
 CAPTURING_SUBSHELL = (PAREN_SUBSHELL | BACKTICK_SUBSHELL)
 VARIABLE << (EXPANDED_VARIABLE | SIMPLE_VARIABLE)
 
-VALUE = pp.OneOrMore(
-    QUOTED_STRING
-    | __value(quoted=False)
-    | ('$' + (pp.StringEnd() | pp.LineEnd() | ~SPECIAL_NAME)))
-
 STRING_COMPONENT = (
     STRING_ESCAPED('string_escaped')
     | __any_except('"$`\\')('string_other')
@@ -101,3 +96,9 @@ DOUBLE_QUOTED_STRING = (
     pp.originalTextFor(pp.Combine(DOUBLE_QUOTED_STRING_UNCOMBINED))
     .leaveWhitespace()
     .parseWithTabs())
+
+VALUE = pp.Group(pp.OneOrMore(
+    SINGLE_QUOTED_STRING
+    | DOUBLE_QUOTED_STRING
+    | __value(quoted=False)
+    | ('$' + (pp.StringEnd() | pp.LineEnd() | ~SPECIAL_NAME))))
