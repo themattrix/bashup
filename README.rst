@@ -9,6 +9,13 @@ A (toy) language that compiles to bash.
 **NOT YET OPERATIONAL**
 
 
+Goals:
+------
+
+- Must handle valid bash.
+- May handle invalid bash.
+
+
 .. |Build| image:: https://travis-ci.org/themattrix/bashup.svg?branch=master
    :target: https://travis-ci.org/themattrix/bashup
 .. |Coverage| image:: https://img.shields.io/coveralls/themattrix/bashup.svg

@@ -1,5 +1,5 @@
 from collections import namedtuple
-from difflib import context_diff
+from difflib import unified_diff
 from pprint import pformat
 
 
@@ -9,7 +9,7 @@ SimpleParseScenario = namedtuple('SimpleParseScenario', (
 
 
 def diff(actual, expected):
-    return '\n'.join(context_diff(
+    return '\n'.join(unified_diff(
         pformat(actual).splitlines(),
         pformat(expected).splitlines(),
         fromfile='actual',

@@ -10,6 +10,8 @@ from bashup.test.test_parse.common import SimpleParseScenario, diff
 #
 
 def test_quoted_string_validation():
+    # Quoted string contains almost all other parsers, so this should validate
+    # nested parsers as well.
     quoted_string.QUOTED_STRING.validate()
 
 
@@ -148,67 +150,86 @@ def test_double_quoted_string_components():
 
     This test is in contrast to the rest which only care about the string as an
     opaque object. It's useful to validate that the string was parsed as
-    expected instead of coincidentally working.
+    expected so that the parsing doesn't break in unexpected ways later.
     """
-    obnoxious_str = (
+    backticks = "```)``}``'`'`"
+
+    obnoxious = (
         """ $ """
         """ "\\$_" """
+        """ '$_' """
         """$~$%$^$&"""
         """$#$*$@$-$!$?$$$_"""
-        """'${_}'"${_}"$_0,!@#^&*()-+=\\\\"""
-        """'}'"}"`}`$(})${}"""
-        """')'")"`)`$()${)}"""
-        """'`'"`"``$('`')${'`'}"""
-        """\\""")
+        """$_0,!@#^&*({[-+=\\\\"""
+        """'}'"}"$(})"""
+        """')'")"${)}"""
+        """$()${}$(``)${``}"""
+        """'`'"`" """)
+
+    expected_backticks_list = [
+        ['`', [], '`'],
+        ['`', [')'], '`'],
+        ['`', ['}'], '`'],
+        ['`', ["'`'"], '`']]
+
+    expected_obnoxious_list = [
+        '$',
+        ['"', ['\\$', '_'], '"'],
+        "'$_'",
+        '$', '~',
+        '$', '%',
+        '$', '^',
+        '$', '&',
+        ['$', '#'],
+        ['$', '*'],
+        ['$', '@'],
+        ['$', '-'],
+        ['$', '!'],
+        ['$', '?'],
+        ['$', '$'],
+        ['$', '_'],
+        ['$', '_0'],
+        ',!@#^&*({[-+=\\\\',
+        "'}'",
+        ['"', ['}'], '"'],
+        ['$(', ['}'], ')'],
+        "')'",
+        ['"', [')'], '"'],
+        ['${', [')'], '}'],
+        ['$(', [], ')'],
+        ['${', [], '}'],
+        ['$(', [['`', [], '`']], ')'],
+        ['${', [['`', [], '`']], '}'],
+        "'`'",
+        ['"', ['`'], '"']]
+
+    expected_nested_body_list = (
+        expected_obnoxious_list
+        + expected_backticks_list)
+
+    expected_results_list = [
+        ['"',
+         [['${', [], '}'],
+          ['$(', [], ')'],
+          ['`', [], '`'],
+          ['${', expected_nested_body_list, '}'],
+          ['$(', expected_nested_body_list, ')'],
+          ['`', expected_obnoxious_list, '`'],
+          ],
+         '"']]
 
     to_parse = (
-        '"${{}}$()``\n\r\t ${{{o}}}"'
-        # '\n\r\t $({o})"'
-        # '\n\r\t `{o}`"'
-    ).format(o=obnoxious_str)
+        '"'
+        '${{}}$()``'
+        '\n\r\t ${{{o}{b}}}'
+        '\n\r\t $({o}{b})'
+        '\n\r\t `{o}`'
+        '"'
+    ).format(
+        o=obnoxious,
+        b=backticks)
 
-    expected_results_list = (
-        [['"',
-          [['${', [], '}'],
-           ['$(', [], ')'],
-           ['`', [], '`'],
-           ['${',
-            ['$',
-             ['"', ['\\$', '_'], '"'],
-             '$', '~',
-             '$', '%',
-             '$', '^',
-             '$', '&',
-             ['$', '#'],
-             ['$', '*'],
-             ['$', '@'],
-             ['$', '-'],
-             ['$', '!'],
-             ['$', '?'],
-             ['$', '$'],
-             ['$', '_'],
-             "'${_}'",
-             ['"', [['${', ['_'], '}']], '"'],
-             ['$', '_0'],
-             ',!@#^&*()-+=\\\\',
-             "'}'",
-             ['"', ['}'], '"'],
-             ['`', ['}'], '`'],
-             ['$(', ['}'], ')'],
-             ['${', [], '}'],
-             "')'",
-             ['"', [')'], '"'],
-             ['`', [')'], '`'],
-             ['$(', [], ')'],
-             ['${', [')'], '}'],
-             "'`'",
-             ['"', ['`'], '"'],
-             ['`', [], '`'],
-             ['$(', ["'`'"], ')'],
-             ['${', ["'`'"], '}'],
-             '\\'],
-            '}']],
-          '"']])
+    print(repr(to_parse))
 
     parse_result = (
         quoted_string
