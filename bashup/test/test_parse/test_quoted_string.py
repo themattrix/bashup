@@ -214,8 +214,7 @@ def test_double_quoted_string_components():
           ['`', [], '`'],
           ['${', expected_nested_body_list, '}'],
           ['$(', expected_nested_body_list, ')'],
-          ['`', expected_obnoxious_list, '`'],
-          ],
+          ['`', expected_obnoxious_list, '`']],
          '"']]
 
     to_parse = (
