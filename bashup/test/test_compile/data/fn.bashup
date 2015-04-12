@@ -1,0 +1,7 @@
+@fn enable_ramdisk size, path='/ramdisk' {
+    if ! grep "^tmpfs ${path}" /etc/fstab; then
+        echo "tmpfs ${path} tmpfs rw,size=${size} 0 0" >> /etc/fstab
+        mkdir -p "${path}"
+        mount "${path}"
+    fi
+}
