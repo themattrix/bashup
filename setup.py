@@ -13,6 +13,7 @@ setup(
     author='Matthew Tardiff',
     author_email='mattrix@gmail.com',
     install_requires=(
+        'Jinja2',
         'pyparsing',),
     tests_require=(),
     description=(
@@ -23,7 +24,6 @@ setup(
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: Implementation :: CPython',
