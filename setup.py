@@ -5,6 +5,7 @@ setup(
     version='0.0.1',
     packages=(
         'bashup',
+        'bashup.compile',
         'bashup.parse'),
     url='https://github.com/themattrix/bashup',
     license='MIT',
