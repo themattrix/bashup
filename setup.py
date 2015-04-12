@@ -3,7 +3,9 @@ from setuptools import setup
 setup(
     name='bashup',
     version='0.0.1',
-    packages=('bashup',),
+    packages=(
+        'bashup',
+        'bashup.parse'),
     url='https://github.com/themattrix/bashup',
     license='MIT',
     author='Matthew Tardiff',
