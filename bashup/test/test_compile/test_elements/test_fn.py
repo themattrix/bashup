@@ -221,6 +221,157 @@ def test_compile_fns_to_bash_multiple_fns_with_args():
     __assert_eq(actual, expected)
 
 
+def test_compile_fns_to_bash_custom_indents():
+    expected = dedent("""
+        {
+        \t#
+        \t# usage: enable_ramdisk --size <SIZE> [--path <PATH>] [ARGS]
+        \t#
+        \tfunction enable_ramdisk() {
+        \t local size
+        \t local size__set=0
+        \t local path='/ramdisk'
+        \t local args=()
+        \t local i
+
+        \t for ((i = 1; i < $#; i++)); do
+        \t  if [ "${!i}" == "--size" ]; then
+        \t   ((i++))
+        \t   size=${!i}
+        \t   size__set=1
+        \t  elif [ "${!i}" == "--path" ]; then
+        \t   ((i++))
+        \t   path=${!i}
+        \t  else
+        \t   args+=("${!i}")
+        \t  fi
+        \t done
+
+        \t if [ ${size__set} -eq 0 ]; then
+        \t  echo "[ERROR] The --size parameter must be given."
+        \t  return 1
+        \t fi
+
+        \t __enable_ramdisk "${size}" "${path}" "${args[@]}"
+        \t}
+
+        \tfunction __enable_ramdisk() {
+        \t local size=${1}
+        \t local path=${2}
+        \t shift 2
+
+        \t if ! grep "^tmpfs ${path}" /etc/fstab; then
+        \t  echo "tmpfs ${path} tmpfs rw,size=${size} 0 0" >> /etc/fstab
+        \t  mkdir -p "${path}"
+        \t  mount "${path}"
+        \t fi
+        \t}
+        }
+
+        {
+            #
+            # usage: ensure_root [ARGS]
+            #
+            function ensure_root() {
+            \tif [ ${EUID} -ne 0 ]; then
+            \t\techo "[ERROR] Script must be run as root."
+            \t\treturn 1
+            \tfi
+            }
+        }
+    """).strip()
+
+    actual = fn.compile_fns_to_bash(bashup_str=dedent("""
+        {
+        \t@fn enable_ramdisk size, path='/ramdisk' {
+        \t if ! grep "^tmpfs ${path}" /etc/fstab; then
+        \t  echo "tmpfs ${path} tmpfs rw,size=${size} 0 0" >> /etc/fstab
+        \t  mkdir -p "${path}"
+        \t  mount "${path}"
+        \t fi
+        \t}
+        }
+
+        {
+            @fn ensure_root {
+            \tif [ ${EUID} -ne 0 ]; then
+            \t\techo "[ERROR] Script must be run as root."
+            \t\treturn 1
+            \tfi
+            }
+        }
+    """).strip())
+
+    __assert_eq(actual, expected)
+
+
+def test_compile_fns_to_bash_custom_indents_with_blank_lines():
+    expected = dedent("""
+        {
+        \t#
+        \t# usage: enable_ramdisk --size <SIZE> [--path <PATH>] [ARGS]
+        \t#
+        \tfunction enable_ramdisk() {
+        \t local size
+        \t local size__set=0
+        \t local path='/ramdisk'
+        \t local args=()
+        \t local i
+
+        \t for ((i = 1; i < $#; i++)); do
+        \t  if [ "${!i}" == "--size" ]; then
+        \t   ((i++))
+        \t   size=${!i}
+        \t   size__set=1
+        \t  elif [ "${!i}" == "--path" ]; then
+        \t   ((i++))
+        \t   path=${!i}
+        \t  else
+        \t   args+=("${!i}")
+        \t  fi
+        \t done
+
+        \t if [ ${size__set} -eq 0 ]; then
+        \t  echo "[ERROR] The --size parameter must be given."
+        \t  return 1
+        \t fi
+
+        \t __enable_ramdisk "${size}" "${path}" "${args[@]}"
+        \t}
+
+        \tfunction __enable_ramdisk() {
+        \t local size=${1}
+        \t local path=${2}
+        \t shift 2
+
+
+
+        \t if ! grep "^tmpfs ${path}" /etc/fstab; then
+        \t  echo "tmpfs ${path} tmpfs rw,size=${size} 0 0" >> /etc/fstab
+        \t  mkdir -p "${path}"
+        \t  mount "${path}"
+        \t fi
+        \t}
+        }
+    """).strip()
+
+    actual = fn.compile_fns_to_bash(bashup_str=dedent("""
+        {
+        \t@fn enable_ramdisk size, path='/ramdisk' {
+
+
+        \t if ! grep "^tmpfs ${path}" /etc/fstab; then
+        \t  echo "tmpfs ${path} tmpfs rw,size=${size} 0 0" >> /etc/fstab
+        \t  mkdir -p "${path}"
+        \t  mount "${path}"
+        \t fi
+        \t}
+        }
+    """).strip())
+
+    __assert_eq(actual, expected)
+
+
 #
 # Test Helpers
 #
