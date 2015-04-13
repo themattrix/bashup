@@ -1,13 +1,30 @@
-from nose.tools import eq_
 from textwrap import dedent
 from bashup.parse.fn import Fn, Arg
 from bashup.compile.elements import fn
 from bashup.test.common import diff
 
 
-def test_compile_fn_spec_to_bash():
+#
+# Tests
+#
+
+def test_compile_fn_spec_to_bash_without_args():
     expected = dedent("""
-        # <generated>
+        #
+        # usage: hello [ARGS]
+        #
+        function hello() {
+    """).strip()
+
+    actual = fn.compile_fn_spec_to_bash(fn_spec=Fn(
+        name='hello',
+        args=()))
+
+    __assert_eq(actual, expected)
+
+
+def test_compile_fn_spec_to_bash_with_args():
+    expected = dedent("""
         #
         # usage: enable_ramdisk --size <SIZE> [--path <PATH>] [ARGS]
         #
@@ -44,16 +61,42 @@ def test_compile_fn_spec_to_bash():
             local path=${2}
             shift 2
 
-            # </generated>
-    """).strip()
+    """).lstrip()
 
     actual = fn.compile_fn_spec_to_bash(fn_spec=Fn(
         name='enable_ramdisk',
         args=(Arg(name='size', value=None),
               Arg(name='path', value="'/ramdisk'"))))
 
+    __assert_eq(actual, expected)
+
+
+def test_compile_fns_to_bash_single_fn_without_args():
+    expected = dedent("""
+        #
+        # usage: hello [ARGS]
+        #
+        function hello() {
+            echo "hello!"
+        }
+    """).strip()
+
+    actual = fn.compile_fns_to_bash(bashup_str=dedent("""
+        @fn hello {
+            echo "hello!"
+        }
+    """).strip())
+
+    __assert_eq(actual, expected)
+
+
+#
+# Test Helpers
+#
+
+def __assert_eq(actual, expected):
     try:
-        eq_(actual, expected)
+        assert actual == expected
     except AssertionError:                  # pragma: no cover
         raise AssertionError(
             '\n' + diff(actual, expected))  # pragma: no cover

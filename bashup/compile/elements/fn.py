@@ -1,14 +1,24 @@
 import jinja2
 from textwrap import dedent
+from bashup.parse.fn import FN, Fn
 
 
-# def compile_fns_to_bash(bashup_str):
-#     """
-#     Compiles all @fn statements in the provided bashup string. Returns a new
-#     string containing the original source but with every @fn statement
-#     replaced with the equivalent bash code.
-#     """
-#     return bashup_str
+def compile_fns_to_bash(bashup_str):
+    """
+    Compiles all @fn statements in the provided bashup string. Returns a new
+    string containing the original source but with every @fn statement
+    replaced with the equivalent bash code.
+    """
+    def generate_segments():
+        last = 0
+        for parse_result, start, end in FN.scanString(bashup_str):
+            yield bashup_str[last:start]
+            fn_spec = Fn.from_parse_result(parse_result)
+            yield compile_fn_spec_to_bash(fn_spec)
+            last = end
+        yield bashup_str[last:]
+
+    return ''.join(generate_segments())
 
 
 def compile_fn_spec_to_bash(fn_spec):
@@ -35,12 +45,11 @@ def compile_fn_spec_to_bash(fn_spec):
 
 __FN_TEMPLATE = dedent("""
 
-    # <generated>
     #
     # usage: {{ fn.name }} {{ param_usage }}[ARGS]
     #
+    {% if fn.args|length %}
     function {{ fn.name }}() {
-        {% if fn.args|length %}
         {% for arg in fn.args %}
         {% if arg.value is none %}
         local {{ arg.name }}
@@ -90,8 +99,9 @@ __FN_TEMPLATE = dedent("""
         {% endfor %}
         shift {{ fn.args|length }}
 
-        {% endif %}
-        # </generated>
+    {% else %}
+    function {{ fn.name }}() {
+    {%- endif %}
 
 """).strip()
 
