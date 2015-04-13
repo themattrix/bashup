@@ -1,12 +1,9 @@
 import re
-import subprocess
 import sys
 from contextlib import contextmanager
 from glob import glob
-from nose.plugins.skip import SkipTest
 from nose.tools import eq_, raises
-from temporary import in_temp_dir, temp_file
-from textwrap import dedent
+from temporary import temp_file
 from os.path import abspath, dirname, join
 from bashup.__main__ import compilation, main
 from bashup.test.common import assert_eq
@@ -74,42 +71,6 @@ def test_compilation_writing_to_file():
                 eq_(f.read(), 'Compiled(to_compile)')
 
 
-@in_temp_dir()
-def test_compiled_bash():
-    """
-    Compile some bashup and run it!
-
-    This will obviously only work if bash exists on the system. Otherwise,
-    the test is skipped.
-    """
-    __ensure_bash_exists()
-
-    bashup_str = dedent("""
-        @fn hi greeting='hello', target='world' {
-            echo "${greeting}, ${target}!"
-        }
-
-        hi >&2
-        hi --greeting "greetings" --target "human"
-
-        exit 55
-    """).strip()
-
-    with temp_file(bashup_str) as in_file:
-        __bashup('--in', in_file, '--out', 'hi.sh')
-
-    p = subprocess.Popen(
-        args=('bash', 'hi.sh'),
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE)
-
-    stdout, stderr = [o.decode('UTF-8').strip() for o in p.communicate()]
-
-    assert_eq(stdout, 'greetings, human!')
-    assert_eq(stderr, 'hello, world!')
-    eq_(p.returncode, 55)
-
-
 #
 # Test Helpers
 #
@@ -136,14 +97,3 @@ def __assert_regex_match(expression, match_against):
         '{e!r} did not match {m!r}'.format(
             e=expression,
             m=match_against))
-
-
-def __bashup(*argv):
-    subprocess.check_call(args=('bashup',) + tuple(argv))
-
-
-def __ensure_bash_exists():
-    try:
-        subprocess.check_call(('bash', '-c', 'true'))
-    except subprocess.CalledProcessError:            # pragma: no cover
-        raise SkipTest('bash executable not found')  # pragma: no cover
