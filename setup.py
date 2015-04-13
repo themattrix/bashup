@@ -13,9 +13,14 @@ setup(
     author='Matthew Tardiff',
     author_email='mattrix@gmail.com',
     install_requires=(
+        'docopt',
         'Jinja2',
         'pyparsing',),
-    tests_require=(),
+    tests_require=(
+        'temporary',),
+    entry_points={
+        'console_scripts': (
+            'bashup = bashup.__main__:main',)},
     description=(
         'A (toy) language that compiles to bash.'),
     classifiers=(

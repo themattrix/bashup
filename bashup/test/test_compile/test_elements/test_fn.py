@@ -1,7 +1,7 @@
 from textwrap import dedent
 from bashup.parse.fn import Fn, Arg
 from bashup.compile.elements import fn
-from bashup.test.common import diff
+from bashup.test.common import assert_eq
 
 
 #
@@ -20,7 +20,7 @@ def test_compile_fn_spec_to_bash_without_args():
         name='hello',
         args=()))
 
-    __assert_eq(actual, expected)
+    assert_eq(actual, expected)
 
 
 def test_compile_fn_spec_to_bash_with_args():
@@ -67,7 +67,7 @@ def test_compile_fn_spec_to_bash_with_args():
         args=(Arg(name='size', value=None),
               Arg(name='path', value="'/ramdisk'"))))
 
-    __assert_eq(actual, expected)
+    assert_eq(actual, expected)
 
 
 def test_compile_fns_to_bash_single_fn_without_args():
@@ -86,7 +86,7 @@ def test_compile_fns_to_bash_single_fn_without_args():
         }
     """).strip())
 
-    __assert_eq(actual, expected)
+    assert_eq(actual, expected)
 
 
 def test_compile_fns_to_bash_multiple_fns_without_args():
@@ -128,7 +128,7 @@ def test_compile_fns_to_bash_multiple_fns_without_args():
         world
     """).strip())
 
-    __assert_eq(actual, expected)
+    assert_eq(actual, expected)
 
 
 def test_compile_fns_to_bash_multiple_fns_with_args():
@@ -218,7 +218,7 @@ def test_compile_fns_to_bash_multiple_fns_with_args():
         enable_ramdisk --size "4G"
     """).strip())
 
-    __assert_eq(actual, expected)
+    assert_eq(actual, expected)
 
 
 def test_compile_fns_to_bash_custom_indents():
@@ -302,7 +302,7 @@ def test_compile_fns_to_bash_custom_indents():
         }
     """).strip())
 
-    __assert_eq(actual, expected)
+    assert_eq(actual, expected)
 
 
 def test_compile_fns_to_bash_custom_indents_with_blank_lines():
@@ -369,16 +369,4 @@ def test_compile_fns_to_bash_custom_indents_with_blank_lines():
         }
     """).strip())
 
-    __assert_eq(actual, expected)
-
-
-#
-# Test Helpers
-#
-
-def __assert_eq(actual, expected):
-    try:
-        assert actual == expected
-    except AssertionError:                  # pragma: no cover
-        raise AssertionError(
-            '\n' + diff(actual, expected))  # pragma: no cover
+    assert_eq(actual, expected)

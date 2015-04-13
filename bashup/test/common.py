@@ -22,3 +22,11 @@ def diff(actual, expected):
         pexpect.splitlines(),
         fromfile='actual',
         tofile='expected'))  # pragma: no cover
+
+
+def assert_eq(actual, expected):
+    try:
+        assert actual == expected
+    except AssertionError:                  # pragma: no cover
+        raise AssertionError(
+            '\n' + diff(actual, expected))  # pragma: no cover

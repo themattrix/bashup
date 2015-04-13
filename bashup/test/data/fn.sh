@@ -1,3 +1,7 @@
+#!/bin/bash
+
+set -e -o pipefail
+
 #
 # usage: enable_ramdisk --size <SIZE> [--path <PATH>] [ARGS]
 #
@@ -40,3 +44,16 @@ function __enable_ramdisk() {
         mount "${path}"
     fi
 }
+
+#
+# usage: ensure_root [ARGS]
+#
+function ensure_root() {
+    if [ ${EUID} -ne 0 ]; then
+        echo "[ERROR] Script must be run as root."
+        return 1
+    fi
+}
+
+ensure_root
+enable_ramdisk --size "4G"
