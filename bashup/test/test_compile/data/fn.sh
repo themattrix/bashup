@@ -1,4 +1,3 @@
-# <generated>
 #
 # usage: enable_ramdisk --size <SIZE> [--path <PATH>] [ARGS]
 #
@@ -35,7 +34,6 @@ function __enable_ramdisk() {
     local path=${2}
     shift 2
 
-    # </generated>
     if ! grep "^tmpfs ${path}" /etc/fstab; then
         echo "tmpfs ${path} tmpfs rw,size=${size} 0 0" >> /etc/fstab
         mkdir -p "${path}"

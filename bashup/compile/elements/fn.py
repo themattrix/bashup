@@ -98,7 +98,6 @@ __FN_TEMPLATE = dedent("""
         local {{ arg.name }}={{ "${" ~ loop.index ~ "}" }}
         {% endfor %}
         shift {{ fn.args|length }}
-
     {% else %}
     function {{ fn.name }}() {
     {%- endif %}
