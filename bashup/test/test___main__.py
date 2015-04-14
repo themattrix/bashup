@@ -5,7 +5,7 @@ from glob import glob
 from nose.tools import eq_, raises
 from temporary import temp_file
 from os.path import abspath, dirname, join
-from bashup.__main__ import compilation, main
+from bashup.__main__ import compile_file, main
 from bashup.test.common import assert_eq
 
 
@@ -45,7 +45,7 @@ def test_version():
     print(stdout.getvalue())  # pragma: no cover
 
 
-def test_compilation_scenarios():
+def test_real_file_scenarios():
     data_dir = join(dirname(abspath(__file__)), 'data')
 
     test_scenarios = zip(
@@ -66,11 +66,22 @@ def test_compilation_scenarios():
 def test_compilation_writing_to_file():
     with temp_file('to_compile') as in_file:
         with temp_file() as out_file:
-            compilation(
-                args={'--in': in_file, '--out': out_file},
+            compile_file(
+                in_file=in_file,
+                out_file=out_file,
                 compile_fn=lambda x: 'Compiled(' + x + ')')
             with open(out_file) as f:
                 eq_(f.read(), 'Compiled(to_compile)')
+
+
+def test_compilation_writing_to_stdout():
+    with temp_file('to_compile') as in_file:
+        with __captured_stdout() as stdout:
+            compile_file(
+                in_file=in_file,
+                out_file='-',
+                compile_fn=lambda x: 'Compiled(' + x + ')')
+        eq_(stdout.getvalue().strip(), 'Compiled(to_compile)')
 
 
 #

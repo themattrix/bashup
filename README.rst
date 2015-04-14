@@ -1,12 +1,10 @@
-Bashup
-======
+Bashup |Health|
+===============
 
 A (toy) language that compiles to bash.
 
   *Just a spoonful of sugar makes the bashisms go down...*
 
-
-**NOT YET OPERATIONAL**
 
 .. code:: bash
 
@@ -19,9 +17,68 @@ A (toy) language that compiles to bash.
     hi --target 'World'
 
 
-.. Installation:
-   .. code:: shell
-   $ pip install bashup
+Installation:
+
+.. code:: shell
+
+    $ pip install bashup
+
+
+Compile and run the above example:
+
+.. code:: shell
+
+    $ bashup -i above_example.bashup -o above_example.sh
+    $ bash above_example.sh
+    Hello, World!
+
+
+Compiled code (``above_example.sh``):
+
+.. code:: bash
+
+    #/bin/bash
+
+    #
+    # usage: hi [--greeting <GREETING>] --target <TARGET> [ARGS]
+    #
+    function hi() {
+        local greeting='Hello'
+        local target
+        local target__set=0
+        local args=()
+        local i
+
+        for ((i = 1; i < $#; i++)); do
+            if [ "${!i}" == "--greeting" ]; then
+                ((i++))
+                greeting=${!i}
+            elif [ "${!i}" == "--target" ]; then
+                ((i++))
+                target=${!i}
+                target__set=1
+            else
+                args+=("${!i}")
+            fi
+        done
+
+        if [ ${target__set} -eq 0 ]; then
+            echo "[ERROR] The --target parameter must be given."
+            return 1
+        fi
+
+        __hi "${greeting}" "${target}" "${args[@]}"
+    }
+
+    function __hi() {
+        local greeting=${1}
+        local target=${2}
+        shift 2
+
+        echo "${greeting}, ${target}!"
+    }
+
+    hi --target 'World'
 
 
 .. |Build| image:: https://travis-ci.org/themattrix/bashup.svg?branch=master
