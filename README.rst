@@ -8,12 +8,20 @@ A (toy) language that compiles to bash.
 
 **NOT YET OPERATIONAL**
 
+.. code:: bash
 
-Goals:
-------
+    #/bin/bash
 
-- Must handle valid bash.
-- May handle invalid bash.
+    @fn hi greeting='Hello', target {
+        echo "${greeting}, ${target}!"
+    }
+
+    hi --target 'World'
+
+
+.. Installation:
+   .. code:: shell
+   $ pip install bashup
 
 
 .. |Build| image:: https://travis-ci.org/themattrix/bashup.svg?branch=master
