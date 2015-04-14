@@ -43,9 +43,9 @@ def __enclosed(start_str, end_str):
 
 def __value(quoted):
     return (
-        CAPTURING_SUBSHELL
-        | VARIABLE
-        | __any_except('"' if quoted else '"\'$`\n\r\t ;,{([#!&<>|')(
+        CAPTURING_SUBSHELL |
+        VARIABLE |
+        __any_except('"' if quoted else '"\'$`\n\r\t ;,{([#!&<>|')(
             'quoted_extras' if quoted else 'unquoted_extras'))
 
 
@@ -72,8 +72,8 @@ STRING_ESCAPED = pp.Word('\\', '\\"$`', exact=2)
 SPECIAL_NAME = pp.Word(pp.nums + '#*@-!?_$', exact=1).leaveWhitespace()
 
 SIMPLE_VARIABLE = pp.Group(
-    pp.Literal('$')('start')
-    + (NAME | SPECIAL_NAME)('name')
+    pp.Literal('$')('start') +
+    (NAME | SPECIAL_NAME)('name')
 )('simple_variable')
 
 EXPANDED_VARIABLE = __enclosed('${', '}')('expanded_variable')
@@ -83,14 +83,14 @@ CAPTURING_SUBSHELL = (PAREN_SUBSHELL | BACKTICK_SUBSHELL)
 VARIABLE << (EXPANDED_VARIABLE | SIMPLE_VARIABLE)
 
 STRING_COMPONENT = (
-    STRING_ESCAPED('string_escaped')
-    | __any_except('"$`\\')('string_other')
-    | __value(quoted=True))
+    STRING_ESCAPED('string_escaped') |
+    __any_except('"$`\\')('string_other') |
+    __value(quoted=True))
 
 DOUBLE_QUOTED_STRING_UNCOMBINED << pp.Group(
-    pp.Literal('"')('start')
-    + pp.Group(pp.ZeroOrMore(STRING_COMPONENT))('body')
-    + pp.Literal('"')('end'))('double_quoted_string')
+    pp.Literal('"')('start') +
+    pp.Group(pp.ZeroOrMore(STRING_COMPONENT))('body') +
+    pp.Literal('"')('end'))('double_quoted_string')
 
 DOUBLE_QUOTED_STRING = (
     pp.originalTextFor(pp.Combine(DOUBLE_QUOTED_STRING_UNCOMBINED))
@@ -98,7 +98,7 @@ DOUBLE_QUOTED_STRING = (
     .parseWithTabs())
 
 VALUE = pp.Group(pp.OneOrMore(
-    SINGLE_QUOTED_STRING
-    | DOUBLE_QUOTED_STRING
-    | __value(quoted=False)
-    | ('$' + (pp.StringEnd() | pp.LineEnd() | ~SPECIAL_NAME))))
+    SINGLE_QUOTED_STRING |
+    DOUBLE_QUOTED_STRING |
+    __value(quoted=False) |
+    ('$' + (pp.StringEnd() | pp.LineEnd() | ~SPECIAL_NAME))))

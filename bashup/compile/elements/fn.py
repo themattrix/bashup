@@ -2,7 +2,7 @@ from __future__ import division
 import jinja2
 import re
 from textwrap import dedent
-from bashup.parse.fn import FN, Fn
+from bashup.parse.fn import FN, FnSpec
 
 
 def compile_fns_to_bash(bashup_str):
@@ -16,7 +16,7 @@ def compile_fns_to_bash(bashup_str):
         scanner = FN.parseWithTabs().scanString(bashup_str)
 
         for parse_result, start, end in scanner:
-            fn_spec = Fn.from_parse_result(parse_result)
+            fn_spec = FnSpec.from_parse_result(parse_result)
             compiled = compile_fn_spec_to_bash(fn_spec)
             initial_indent, body_indent = __guess_indentation(
                 before_fn=bashup_str[last:start],

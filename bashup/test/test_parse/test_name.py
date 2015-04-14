@@ -42,22 +42,22 @@ def test_name_failure_scenarios():
 #
 
 __VALID_FIRST = (
-    string.ascii_letters
-    + '_')
+    string.ascii_letters +
+    '_')
 
 __VALID_SECOND = (
-    string.ascii_letters
-    + string.digits
-    + '_')
+    string.ascii_letters +
+    string.digits +
+    '_')
 
 __INVALID_FIRST = (
-    string.digits
-    + string.whitespace
-    + string.punctuation.replace('_', ''))
+    string.digits +
+    string.whitespace +
+    string.punctuation.replace('_', ''))
 
 __INVALID_SECOND = (
-    string.whitespace
-    + string.punctuation.replace('_', ''))
+    string.whitespace +
+    string.punctuation.replace('_', ''))
 
 
 def __parse_name(to_parse):

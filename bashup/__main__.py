@@ -24,7 +24,7 @@ def compilation(args, compile_fn=compile_to_bash):
         with open(args['--out'], 'wb') as f:
             f.write(out_str.encode('UTF-8'))
     else:
-        print(out_str)
+        print(out_str)  # pylint: disable=superfluous-parens
 
 
 def main(argv=None):

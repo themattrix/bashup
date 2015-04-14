@@ -1,4 +1,5 @@
 # pylint: disable=pointless-statement, expression-not-assigned
+# pylint: disable=too-few-public-methods
 
 import pyparsing as pp
 from collections import namedtuple
@@ -6,17 +7,17 @@ from bashup.parse.value import VALUE
 from bashup.parse.name import NAME
 
 
-class Fn(namedtuple('Fn', ('name', 'args'))):
+class FnSpec(namedtuple('FnSpec', ('name', 'args'))):
     @classmethod
     def from_parse_result(cls, fn_parse_result):
         name = fn_parse_result['fn']['name']
         args = tuple(
-            Arg.from_list(arg) for arg
+            ArgSpec.from_list(arg) for arg
             in fn_parse_result['fn'].get('parameter_list', _EMPTY).asList())
         return cls(name=name, args=args)
 
 
-class Arg(namedtuple('Arg', ('name', 'value'))):
+class ArgSpec(namedtuple('ArgSpec', ('name', 'value'))):
     @classmethod
     def from_list(cls, name_and_maybe_value):
         nv = name_and_maybe_value
@@ -28,12 +29,13 @@ class Arg(namedtuple('Arg', ('name', 'value'))):
 #
 
 DEFAULT_VALUE = (
-    pp.Literal('=').suppress()
-    + pp.originalTextFor(VALUE)
+    pp.Literal('=').suppress() +
+    pp.originalTextFor(VALUE)
 )('value')
 
 PARAMETER = pp.Group(
-    NAME('name') + pp.Optional(DEFAULT_VALUE)
+    NAME('name') +
+    pp.Optional(DEFAULT_VALUE)
 )('parameter')
 
 PARAMETER_LIST = (
@@ -41,10 +43,10 @@ PARAMETER_LIST = (
 )('parameter_list')
 
 FN = pp.Group(
-    pp.Literal('@fn').suppress()
-    + NAME('name')
-    + pp.Optional(PARAMETER_LIST)
-    + pp.Literal('{').suppress()
+    pp.Literal('@fn').suppress() +
+    NAME('name') +
+    pp.Optional(PARAMETER_LIST) +
+    pp.Literal('{').suppress()
 )('fn')
 
 
@@ -52,10 +54,9 @@ FN = pp.Group(
 # Private Helpers
 #
 
-class _Empty(object):  # pylint: disable=too-few-public-methods
+class _Empty(object):
     @staticmethod
-    def asList():      # pylint: disable=invalid-name
+    def asList():  # pylint: disable=invalid-name
         return []
-
 
 _EMPTY = _Empty()

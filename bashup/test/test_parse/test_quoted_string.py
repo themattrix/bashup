@@ -229,6 +229,7 @@ def test_double_quoted_string_components():
         o=obnoxious,
         b=backticks)
 
+    # pylint: disable=superfluous-parens
     print(repr(to_parse))
 
     parse_result = (
@@ -243,9 +244,9 @@ def test_double_quoted_string_components():
         eq_(results_list, expected_results_list)
     except AssertionError:  # pragma: no cover
         raise AssertionError(
-            parse_result.asXML()
-            + '\n\n'
-            + diff(results_list, expected_results_list))  # pragma: no cover
+            parse_result.asXML() +
+            '\n\n' +
+            diff(results_list, expected_results_list))  # pragma: no cover
 
 
 #

@@ -1,5 +1,5 @@
 from textwrap import dedent
-from bashup.parse.fn import Fn, Arg
+from bashup.parse.fn import FnSpec, ArgSpec
 from bashup.compile.elements import fn
 from bashup.test.common import assert_eq
 
@@ -16,7 +16,7 @@ def test_compile_fn_spec_to_bash_without_args():
         function hello() {
     """).strip()
 
-    actual = fn.compile_fn_spec_to_bash(fn_spec=Fn(
+    actual = fn.compile_fn_spec_to_bash(fn_spec=FnSpec(
         name='hello',
         args=()))
 
@@ -62,10 +62,10 @@ def test_compile_fn_spec_to_bash_with_args():
             shift 2
     """).lstrip()
 
-    actual = fn.compile_fn_spec_to_bash(fn_spec=Fn(
+    actual = fn.compile_fn_spec_to_bash(fn_spec=FnSpec(
         name='enable_ramdisk',
-        args=(Arg(name='size', value=None),
-              Arg(name='path', value="'/ramdisk'"))))
+        args=(ArgSpec(name='size', value=None),
+              ArgSpec(name='path', value="'/ramdisk'"))))
 
     assert_eq(actual, expected)
 

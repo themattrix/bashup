@@ -24,6 +24,7 @@ def test_help():
             except SystemExit:
                 __assert_in('Usage:', stdout.getvalue())
                 raise
+        # pylint: disable=superfluous-parens
         print(stdout.getvalue())  # pragma: no cover
 
     for a in (['-h'], ['--help']):
@@ -40,6 +41,7 @@ def test_version():
                 r'Bashup \d+\.\d+\.\d+',
                 stdout.getvalue().strip())
             raise
+    # pylint: disable=superfluous-parens
     print(stdout.getvalue())  # pragma: no cover
 
 

@@ -3,9 +3,11 @@ from pprint import pformat
 
 
 try:
-    basestring        # pylint: disable=invalid-name
+    # pylint: disable=invalid-name
+    basestring
 except NameError:     # pragma: no cover
-    basestring = str  # pragma: no cover  pylint: disable=invalid-name
+    # pylint: disable=invalid-name,redefined-builtin
+    basestring = str  # pragma: no cover
 
 
 def diff(actual, expected):
