@@ -36,9 +36,9 @@ def __enclosed(start_str, end_str):
     match_first = pp.MatchFirst(list(__generate_match_first()))
 
     return pp.Group(
-        pp.Literal(start_str)('start')
-        + pp.Group(pp.ZeroOrMore(match_first))('body')
-        + pp.Literal(end_str)('end'))
+        pp.Literal(start_str)('start') +
+        pp.Group(pp.ZeroOrMore(match_first))('body') +
+        pp.Literal(end_str)('end'))
 
 
 def __value(quoted):
