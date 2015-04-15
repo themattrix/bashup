@@ -83,6 +83,39 @@ Compiled code (``above_example.sh``):
     hi --target 'World'
 
 
+Nifty Features
+--------------
+
+Bashup tries its best to match the indentation of its compiled code against your hand-written bash.
+For example:
+
+.. code:: bash
+
+    @fn hi greeting='Hello', target {
+      echo "${greeting}, ${target}!"
+    }
+    
+...compiles to:
+
+.. code:: bash
+
+    #
+    # usage: hi [--greeting <GREETING>] --target <TARGET> [ARGS]
+    #
+    function hi() {
+      local greeting='Hello'
+      local target
+      local target__set=0
+      local args=()
+      local i
+
+      for ((i = 1; i < $#; i++)); do
+        if [ "${!i}" == "--greeting" ]; then
+          ((i++))
+          greeting=${!i}
+          ...
+
+
 .. |Build| image:: https://travis-ci.org/themattrix/bashup.svg?branch=master
    :target: https://travis-ci.org/themattrix/bashup
 .. |Coverage| image:: https://img.shields.io/coveralls/themattrix/bashup.svg
