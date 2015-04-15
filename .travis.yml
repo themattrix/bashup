@@ -27,3 +27,5 @@ deploy:
     tags: true
     all_branches: true
     repo: themattrix/bashup
+  password:
+    secure: by5TIv+6ILWqNa3PQEGFavoJzxVNN4gfzfE+H0c3f1v8lB4cbLyU6XP+nQxfRpD1PGDuMaxM8iZ5qaLSCz9D9Ax51MLa5ReFax7FNsTQYjAT/BosXXBmZ/DWqt1hK1fhthx+8sa2Rnu/tzGCntWe1AEK0V0sKlrnqEiMWkHf3ao=
