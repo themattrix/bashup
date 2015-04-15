@@ -1,5 +1,7 @@
-Bashup |Health|
-===============
+Bashup |Version| |Build| |Coverage| |Health|
+============================================
+
+|Compatibility| |Implementations| |Format| |Downloads|
 
 A (toy) language that compiles to bash.
 
