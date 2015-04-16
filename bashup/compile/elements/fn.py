@@ -70,22 +70,22 @@ __FN_TEMPLATE = dedent("""
         local args=()
         local i
 
-        for ((i = 1; i < $#; i++)); do
+        for ((i = 1; i <= $#; i++)); do
             {% for arg in fn.args %}
             {% set param = "--" ~ arg.name.replace('_', '-') %}
             {% if loop.index == 1 %}
-            if [ "{{ "${!i}" }}" == "{{ param }}" ]; then
+            if [ "${!i}" == "{{ param }}" ]; then
             {% else %}
-            elif [ "{{ "${!i}" }}" == "{{ param }}" ]; then
+            elif [ "${!i}" == "{{ param }}" ]; then
             {% endif %}
                 ((i++))
-                {{ arg.name }}={{ "${!i}" }}
+                {{ arg.name }}=${!i}
                 {% if arg.value is none %}
                 {{ arg.name }}__set=1
                 {% endif %}
             {% endfor %}
             else
-                args+=("{{ "${!i}" }}")
+                args+=("${!i}")
             fi
         done
 
@@ -99,7 +99,7 @@ __FN_TEMPLATE = dedent("""
         {% endif %}
         {% endfor %}
 
-        __{{ fn.name }} {{ arg_list }} "{{ "${args[@]}" }}"
+        __{{ fn.name }} {{ arg_list }} "${args[@]}"
     }
 
     function __{{ fn.name }}() {

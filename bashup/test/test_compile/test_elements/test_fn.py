@@ -35,7 +35,7 @@ def test_compile_fn_spec_to_bash_with_args():
             local args=()
             local i
 
-            for ((i = 1; i < $#; i++)); do
+            for ((i = 1; i <= $#; i++)); do
                 if [ "${!i}" == "--size" ]; then
                     ((i++))
                     size=${!i}
@@ -147,7 +147,7 @@ def test_compile_fns_to_bash_multiple_fns_with_args():
             local args=()
             local i
 
-            for ((i = 1; i < $#; i++)); do
+            for ((i = 1; i <= $#; i++)); do
                 if [ "${!i}" == "--size" ]; then
                     ((i++))
                     size=${!i}
@@ -234,7 +234,7 @@ def test_compile_fns_to_bash_custom_indents():
         \t local args=()
         \t local i
 
-        \t for ((i = 1; i < $#; i++)); do
+        \t for ((i = 1; i <= $#; i++)); do
         \t  if [ "${!i}" == "--size" ]; then
         \t   ((i++))
         \t   size=${!i}
@@ -318,7 +318,7 @@ def test_compile_fns_to_bash_custom_indents_with_blank_lines():
         \t local args=()
         \t local i
 
-        \t for ((i = 1; i < $#; i++)); do
+        \t for ((i = 1; i <= $#; i++)); do
         \t  if [ "${!i}" == "--size" ]; then
         \t   ((i++))
         \t   size=${!i}

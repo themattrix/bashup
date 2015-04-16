@@ -12,7 +12,7 @@ function enable_ramdisk() {
     local args=()
     local i
 
-    for ((i = 1; i < $#; i++)); do
+    for ((i = 1; i <= $#; i++)); do
         if [ "${!i}" == "--size" ]; then
             ((i++))
             size=${!i}

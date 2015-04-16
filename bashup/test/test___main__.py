@@ -1,24 +1,19 @@
 import re
-import sys
 from contextlib import contextmanager
 from glob import glob
+from itertools import product
+from mock import call, Mock
 from nose.tools import eq_, raises
 from temporary import temp_file
 from os.path import abspath, dirname, join
-from bashup.__main__ import compile_file, main
-from bashup.test.common import assert_eq
-
-
-try:
-    from cStringIO import StringIO
-except ImportError:          # pragma: no cover
-    from io import StringIO  # pragma: no cover
+from bashup.__main__ import compile_file, main, run_file
+from bashup.test.common import assert_eq, captured_stdout
 
 
 def test_help():
     @raises(SystemExit)
     def assert_help(argv):
-        with __captured_stdout() as stdout:
+        with captured_stdout() as stdout:
             try:
                 main(argv)
             except SystemExit:
@@ -33,7 +28,7 @@ def test_help():
 
 @raises(SystemExit)
 def test_version():
-    with __captured_stdout() as stdout:
+    with captured_stdout() as stdout:
         try:
             main(['--version'])
         except SystemExit:
@@ -55,7 +50,7 @@ def test_real_file_scenarios():
     def assert_compile_scenario(in_file, expected_file):
         with open(expected_file) as f:
             expected_stdout = f.read()
-        with __captured_stdout() as stdout:
+        with captured_stdout() as stdout:
             main(['--in', in_file])
         assert_eq(stdout.getvalue().strip(), expected_stdout.strip())
 
@@ -76,7 +71,7 @@ def test_compilation_writing_to_file():
 
 def test_compilation_writing_to_stdout():
     with temp_file('to_compile') as in_file:
-        with __captured_stdout() as stdout:
+        with captured_stdout() as stdout:
             compile_file(
                 in_file=in_file,
                 out_file='-',
@@ -84,19 +79,72 @@ def test_compilation_writing_to_stdout():
         eq_(stdout.getvalue().strip(), 'Compiled(to_compile)')
 
 
+def test_run_file():
+    @contextmanager
+    def temp_file_ctx(run_str):
+        yield 'Temp(' + run_str + ')'
+
+    with temp_file('to_compile') as to_run:
+        actual = run_file(
+            to_run=to_run,
+            args=['one', 'two'],
+            compile_fn=lambda x: 'Compiled(' + x + ')',
+            run_fn=lambda x: 'Ran(' + str(x) + ')',
+            temp_file_ctx=temp_file_ctx)
+
+    eq_(actual, "Ran(('bash', 'Temp(Compiled(to_compile))', 'one', 'two'))")
+
+
+def test_main_routes_to_run():
+    run_flags = ('-r', '--run')
+
+    def assert_main_routes_to_run(run_flag):
+        master_mock = Mock()
+        master_mock.run_fn.return_value = 'run-return'
+
+        retval = main(
+            argv=[
+                run_flag, 'my-script',
+                '--',
+                'one', '--two', '-3', '--', 'five'],
+            run_fn=master_mock.run_fn,
+            compile_fn=master_mock.compile_fn)
+
+        eq_(retval, 'run-return')
+        eq_(tuple(master_mock.mock_calls), (
+            call.run_fn(
+                to_run='my-script',
+                args=('one', '--two', '-3', '--', 'five')),))
+
+    for f in run_flags:
+        yield assert_main_routes_to_run, f
+
+
+def test_main_routes_to_compile():
+    in_flags = ('-i', '--in')
+    out_flags = ('-o', '--out')
+
+    def assert_main_routes_to_compile(in_flag, out_flag):
+        master_mock = Mock()
+
+        retval = main(
+            argv=[in_flag, 'in-file', out_flag, 'out-file'],
+            run_fn=master_mock.run_fn,
+            compile_fn=master_mock.compile_fn)
+
+        eq_(retval, 0)
+        eq_(tuple(master_mock.mock_calls), (
+            call.compile_fn(
+                in_file='in-file',
+                out_file='out-file'),))
+
+    for i, o in product(in_flags, out_flags):
+        yield assert_main_routes_to_compile, i, o
+
+
 #
 # Test Helpers
 #
-
-@contextmanager
-def __captured_stdout():
-    old_out = sys.stdout
-    try:
-        sys.stdout = StringIO()
-        yield sys.stdout
-    finally:
-        sys.stdout = old_out
-
 
 def __assert_in(subset, superset):
     assert subset in superset, (

@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='bashup',
-    version='1.0.0',
+    version='1.1.0',
     packages=(
         'bashup',
         'bashup.compile',
@@ -15,9 +15,10 @@ setup(
     install_requires=(
         'docopt',
         'Jinja2',
-        'pyparsing',),
-    tests_require=(
+        'pyparsing',
         'temporary',),
+    tests_require=(
+        'mock',),
     entry_points={
         'console_scripts': (
             'bashup = bashup.__main__:main',)},

@@ -29,6 +29,15 @@ RUN ln -s /install/pypy3-2.4.0-linux64/bin/pypy3 /usr/local/bin/pypy3
 
 RUN pip install tox
 
+ADD docker-scripts /docker-scripts
+RUN chmod +x /docker-scripts/* \
+    && mv /docker-scripts/* /usr/local/bin/ \
+    && rm -rf /docker-scripts
+
+ENV BASH_VERSIONS_DIR /bash
+RUN mkdir $BASH_VERSIONS_DIR \
+    && build-bash-versions 3.1 3.2 4.0 4.1 4.2 4.3
+
 RUN mkdir /app
 WORKDIR /app
 ADD requirements*.txt /app/

@@ -83,6 +83,12 @@ Compiled code (``above_example.sh``):
     hi --target 'World'
 
 
+Supported Bash Versions
+-----------------------
+
+The generated bash code works with bash 3.1 and above (tested against 3.1 to 4.3).
+
+
 Nifty Features
 --------------
 
@@ -94,7 +100,7 @@ For example:
     @fn hi greeting='Hello', target {
       echo "${greeting}, ${target}!"
     }
-    
+
 ...compiles to:
 
 .. code:: bash
@@ -116,6 +122,23 @@ For example:
           ...
 
 
+Changelog
+---------
+
+**1.1.0**
+
+- Feature - |Issue #3|__
+- Fixed - |Issue #2|__
+- Fixed - |Issue #4|__
+
+
+**1.0.0**
+
+- Initial release, supports ``@fn`` syntax.
+
+
+.. Badges
+
 .. |Build| image:: https://travis-ci.org/themattrix/bashup.svg?branch=master
    :target: https://travis-ci.org/themattrix/bashup
 .. |Coverage| image:: https://img.shields.io/coveralls/themattrix/bashup.svg
@@ -132,3 +155,15 @@ For example:
    :target: https://pypi.python.org/pypi/bashup
 .. |Format| image:: https://pypip.in/format/bashup/badge.svg
    :target: https://pypi.python.org/pypi/bashup
+
+
+.. Issues
+
+.. |Issue #2| replace:: Issue #2: "Run generated bash code against multiple versions of bash."
+__ https://github.com/themattrix/bashup/issues/2
+
+.. |Issue #3| replace:: Issue #3: "Allow running of bashup scripts directly."
+__ https://github.com/themattrix/bashup/issues/3
+
+.. |Issue #4| replace:: Issue #4: "Last positional parameter to @fn may not be passed to generated function."
+__ https://github.com/themattrix/bashup/issues/4

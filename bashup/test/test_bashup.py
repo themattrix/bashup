@@ -1,44 +1,58 @@
+import os
 import subprocess
+from glob import glob
 from nose.plugins.skip import SkipTest
 from nose.tools import eq_
+from os.path import join
 from temporary import in_temp_dir, temp_file
 from textwrap import dedent
 from bashup.test.common import assert_eq
 
 
-@in_temp_dir()
+# Compile some bashup and run it!
+#
+# This will obviously only work if bash exists on the system. Otherwise
+# the test is skipped.
+#
 def test_compiled_bash():
-    """
-    Compile some bashup and run it!
+    bash_binaries = __find_bash_binaries()
 
-    This will obviously only work if bash exists on the system. Otherwise,
-    the test is skipped.
-    """
-    __ensure_bash_exists()
+    if not bash_binaries:
+        raise SkipTest('bash executable not found')  # pragma: no cover
 
-    bashup_str = dedent("""
-        @fn hi greeting='hello', target='world' {
-            echo "${greeting}, ${target}!"
-        }
+    @in_temp_dir()
+    def assert_compiled_bash(bash_binary):
+        with temp_file(__BASHUP_STR) as in_file:
+            subprocess.check_call(args=(
+                'bashup', '--in', in_file, '--out', 'hi.sh'))
 
-        hi >&2
-        hi --greeting "greetings" --target "human"
+        p = subprocess.Popen(
+            args=(bash_binary, 'hi.sh'),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
 
-        exit 55
-    """).strip()
+        stdout, _ = [o.decode('UTF-8').strip() for o in p.communicate()]
 
-    with temp_file(bashup_str) as in_file:
-        __bashup('--in', in_file, '--out', 'hi.sh')
+        assert_eq(stdout, __EXPECTED_OUTPUT)
+        eq_(p.returncode, 55)
 
-    p = subprocess.Popen(
-        args=('bash', 'hi.sh'),
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE)
+    for b in bash_binaries:
+        yield assert_compiled_bash, b
 
-    stdout, stderr = [o.decode('UTF-8').strip() for o in p.communicate()]
 
-    assert_eq(stdout, 'greetings, human!')
-    assert_eq(stderr, 'hello, world!')
+def test_direct_run():
+    if not __is_bash_in_path():
+        raise SkipTest('bash executable not found')  # pragma: no cover
+
+    with temp_file(__BASHUP_STR) as in_file:
+        p = subprocess.Popen(
+            args=('bashup', '--run', in_file),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE)
+
+        stdout, _ = [o.decode('UTF-8').strip() for o in p.communicate()]
+
+    assert_eq(stdout, __EXPECTED_OUTPUT)
     eq_(p.returncode, 55)
 
 
@@ -46,12 +60,38 @@ def test_compiled_bash():
 # Test Helpers
 #
 
-def __bashup(*argv):
-    subprocess.check_call(args=('bashup',) + tuple(argv))
+__BASHUP_STR = dedent("""
+    @fn hi greeting='Hello', target='World' {
+        echo "${greeting}, ${target}!$@"
+    }
+
+    hi
+    hi --target "Human"
+    hi --greeting "Greetings"
+    hi --greeting "Greetings" --target "Human"
+    hi --greeting "Greetings" --target "Human" " Have" "fun!"
+
+    exit 55
+""").strip()
+
+__EXPECTED_OUTPUT = '\n'.join((
+    'Hello, World!',
+    'Hello, Human!',
+    'Greetings, World!',
+    'Greetings, Human!',
+    'Greetings, Human! Have fun!',))
 
 
-def __ensure_bash_exists():
+def __find_bash_binaries():
+    try:
+        return tuple(glob(join(os.environ['BASH_VERSIONS_DIR'], 'bash*')))
+    except KeyError:  # pragma: no cover
+        return ()     # pragma: no cover
+
+
+def __is_bash_in_path():
     try:
         subprocess.check_call(('bash', '-c', 'true'))
-    except subprocess.CalledProcessError:            # pragma: no cover
-        raise SkipTest('bash executable not found')  # pragma: no cover
+        return True
+    except subprocess.CalledProcessError:  # pragma: no cover
+        return False                       # pragma: no cover

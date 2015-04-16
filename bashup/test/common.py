@@ -1,6 +1,7 @@
+import sys
+from contextlib import contextmanager
 from difflib import unified_diff
 from pprint import pformat
-
 
 try:
     # pylint: disable=invalid-name
@@ -8,6 +9,11 @@ try:
 except NameError:     # pragma: no cover
     # pylint: disable=invalid-name,redefined-builtin
     basestring = str  # pragma: no cover
+
+try:
+    from cStringIO import StringIO
+except ImportError:          # pragma: no cover
+    from io import StringIO  # pragma: no cover
 
 
 def diff(actual, expected):
@@ -32,3 +38,13 @@ def assert_eq(actual, expected):
     except AssertionError:                  # pragma: no cover
         raise AssertionError(
             '\n' + diff(actual, expected))  # pragma: no cover
+
+
+@contextmanager
+def captured_stdout():
+    old_out = sys.stdout
+    try:
+        sys.stdout = StringIO()
+        yield sys.stdout
+    finally:
+        sys.stdout = old_out
