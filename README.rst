@@ -127,9 +127,9 @@ Changelog
 
 **1.1.0**
 
-- Feature - |Issue #3|__
-- Fixed - |Issue #2|__
-- Fixed - |Issue #4|__
+- Fixed - |Issue2|__
+- Feature - |Issue3|__
+- Fixed - |Issue4|__
 
 
 **1.0.0**
@@ -159,11 +159,11 @@ Changelog
 
 .. Issues
 
-.. |Issue #2| replace:: Issue #2: "Run generated bash code against multiple versions of bash."
+.. |Issue2| replace:: Issue #2: "Run generated bash code against multiple versions of bash."
 __ https://github.com/themattrix/bashup/issues/2
 
-.. |Issue #3| replace:: Issue #3: "Allow running of bashup scripts directly."
+.. |Issue3| replace:: Issue #3: "Allow running of bashup scripts directly."
 __ https://github.com/themattrix/bashup/issues/3
 
-.. |Issue #4| replace:: Issue #4: "Last positional parameter to @fn may not be passed to generated function."
+.. |Issue4| replace:: Issue #4: "Last positional parameter to @fn may not be passed to generated function."
 __ https://github.com/themattrix/bashup/issues/4
