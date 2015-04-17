@@ -54,7 +54,7 @@ def run_file(
 
 
 def main(argv=None, run_fn=run_file, compile_fn=compile_file):
-    args = docopt(__doc__, argv, version='Bashup 1.1.0')
+    args = docopt(__doc__, argv, version='Bashup 1.1.1')
 
     if args['--in'] is None:
         return run_fn(to_run=args['--run'], args=tuple(args['<arg>']))

@@ -35,6 +35,14 @@ Compile and run the above example:
     Hello, World!
 
 
+Or just run it directly:
+
+.. code:: shell
+
+    $ bashup -r above_example.bashup
+    Hello, World!
+
+
 Compiled code (``above_example.sh``):
 
 .. code:: bash
@@ -51,7 +59,7 @@ Compiled code (``above_example.sh``):
         local args=()
         local i
 
-        for ((i = 1; i < $#; i++)); do
+        for ((i = 1; i <= $#; i++)); do
             if [ "${!i}" == "--greeting" ]; then
                 ((i++))
                 greeting=${!i}
@@ -115,7 +123,7 @@ For example:
       local args=()
       local i
 
-      for ((i = 1; i < $#; i++)); do
+      for ((i = 1; i <= $#; i++)); do
         if [ "${!i}" == "--greeting" ]; then
           ((i++))
           greeting=${!i}
@@ -124,6 +132,11 @@ For example:
 
 Changelog
 ---------
+
+**1.1.1**
+
+- Tweaked the README.
+
 
 **1.1.0**
 
