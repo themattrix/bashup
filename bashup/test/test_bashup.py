@@ -71,15 +71,35 @@ def test_direct_run():
 #
 
 __BASHUP_STR = dedent("""
+    #!/bin/bash
+
     @fn hi greeting='Hello', target='World' {
         echo "${greeting}, ${target}!$@"
     }
 
+    # We could do this with grep, but this way is pure bash.
+    @fn filter regex {
+        while read line; do
+            if [[ ${line} =~ ${regex} ]]; then
+                echo "${line}"
+            fi
+        done
+    }
+
+    # Ensure that default parameters work and can be overridden.
     hi
     hi --target "Human"
     hi --greeting "Greetings"
     hi --greeting "Greetings" --target "Human"
     hi --greeting "Greetings" --target "Human" " Have" "fun!"
+
+    # Ensure that piping between fns works.
+    {
+        hi --greeting "What now" --target "Human?"
+        hi --greeting "Welcome" --target "Cyborg"
+        hi --greeting "Hi" --target "human"
+
+    } | filter --regex "[Hh]uman"
 
     exit 55
 """).strip()
@@ -89,7 +109,9 @@ __EXPECTED_OUTPUT = '\n'.join((
     'Hello, Human!',
     'Greetings, World!',
     'Greetings, Human!',
-    'Greetings, Human! Have fun!',))
+    'Greetings, Human! Have fun!',
+    'What now, Human?!',
+    'Hi, human!'))
 
 
 def __find_bash_binaries():
