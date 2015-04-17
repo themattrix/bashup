@@ -9,10 +9,9 @@ from textwrap import dedent
 from bashup.test.common import assert_eq
 
 
-# Compile some bashup and run it!
-#
-# This will obviously only work if bash exists on the system. Otherwise
-# the test is skipped.
+# Compile some bashup and run it against multiple versions of bash. The
+# versions are expected to be found in $BASH_VERSIONS_DIR. If none are
+# found, or the environment variable is not set, the tests are skipped.
 #
 def test_compiled_bash():
     bash_binaries = __find_bash_binaries()
@@ -20,40 +19,51 @@ def test_compiled_bash():
     if not bash_binaries:
         raise SkipTest('bash executable not found')  # pragma: no cover
 
-    @in_temp_dir()
-    def assert_compiled_bash(bash_binary):
-        with temp_file(__BASHUP_STR) as in_file:
+    @in_temp_dir()                                   # pragma: no cover
+    def assert_compiled_bash(bash_binary):           # pragma: no cover
+        with temp_file(__BASHUP_STR) as in_file:     # pragma: no cover
             subprocess.check_call(args=(
-                'bashup', '--in', in_file, '--out', 'hi.sh'))
+                'bashup',
+                '--in', in_file,
+                '--out', 'hi.sh'))                   # pragma: no cover
 
         p = subprocess.Popen(
             args=(bash_binary, 'hi.sh'),
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
+            stderr=subprocess.PIPE)                  # pragma: no cover
 
-        stdout, _ = [o.decode('UTF-8').strip() for o in p.communicate()]
+        stdout, _ = [
+            o.decode('UTF-8').strip() for
+            o in p.communicate()]                    # pragma: no cover
 
-        assert_eq(stdout, __EXPECTED_OUTPUT)
-        eq_(p.returncode, 55)
+        assert_eq(stdout, __EXPECTED_OUTPUT)         # pragma: no cover
+        eq_(p.returncode, 55)                        # pragma: no cover
 
-    for b in bash_binaries:
-        yield assert_compiled_bash, b
+    for b in bash_binaries:                          # pragma: no cover
+        yield assert_compiled_bash, b                # pragma: no cover
 
 
+# Compile some bashup and run it!
+#
+# This will obviously only work if bash exists on the system. Otherwise
+# the test is skipped.
+#
 def test_direct_run():
     if not __is_bash_in_path():
         raise SkipTest('bash executable not found')  # pragma: no cover
 
-    with temp_file(__BASHUP_STR) as in_file:
+    with temp_file(__BASHUP_STR) as in_file:         # pragma: no cover
         p = subprocess.Popen(
             args=('bashup', '--run', in_file),
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE)
+            stderr=subprocess.PIPE)                  # pragma: no cover
 
-        stdout, _ = [o.decode('UTF-8').strip() for o in p.communicate()]
+        stdout, _ = [
+            o.decode('UTF-8').strip() for
+            o in p.communicate()]                    # pragma: no cover
 
-    assert_eq(stdout, __EXPECTED_OUTPUT)
-    eq_(p.returncode, 55)
+    assert_eq(stdout, __EXPECTED_OUTPUT)             # pragma: no cover
+    eq_(p.returncode, 55)                            # pragma: no cover
 
 
 #
