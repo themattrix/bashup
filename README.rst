@@ -4,6 +4,8 @@ Bashup |Version| |Build| |Coverage| |Health|
 |Compatibility| |Implementations| |Format| |Downloads|
 
 A (toy) language that compiles to bash.
+You can think of bashup as just a little syntactic sugar sprinkled on top of bash;
+any valid bash script is also a valid bashup script.
 
   *Just a spoonful of sugar makes the bashisms go down...*
 
