@@ -4,7 +4,7 @@ Planned Constructs
 Context Managers
 ----------------
 
-  Inspired by `Python's  ``@contextmanager`` decorator <https://docs.python.org/3.4/library/contextlib.html#contextlib.contextmanager>`_.
+  Inspired by `Python's  @contextmanager decorator <https://docs.python.org/3.4/library/contextlib.html#contextlib.contextmanager>`_.
 
 A context manager is responsible for running some code when entering and
 exiting a block. The exiting code is always run, even when the block is
