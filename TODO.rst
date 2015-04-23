@@ -17,7 +17,7 @@ just such a context manager:
     @ctx mktemp {
         local tmp=$(mktemp "$@")
         @yield "${tmp}"
-        rm -f "${tmp}"
+        rm -rf "${tmp}"
     }
 
 
