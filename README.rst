@@ -132,6 +132,12 @@ For example:
           ...
 
 
+Planned Improvements
+--------------------
+
+See `this document for planned features`_.
+
+
 Changelog
 ---------
 
@@ -170,6 +176,11 @@ Changelog
    :target: https://pypi.python.org/pypi/bashup
 .. |Format| image:: https://pypip.in/format/bashup/badge.svg
    :target: https://pypi.python.org/pypi/bashup
+
+
+.. Other Links
+
+.. _this document for planned features: TODO.rst
 
 
 .. Issues
