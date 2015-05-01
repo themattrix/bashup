@@ -1,23 +1,17 @@
-sudo: false
 language: python
 python:
-- 2.6
-- 2.7
-- 3.3
-- 3.4
-- pypy
-- pypy3
+  - TOXENV=py26
+  - TOXENV=py27
+  - TOXENV=py33
+  - TOXENV=py34
+  - TOXENV=pypy
+  - TOXENV=pypy3
 install:
-- pip install -r requirements_test_runner.txt
-- pip install -r requirements_static_analysis.txt
-- pip install -r requirements_test.txt
-- pip install coveralls
-- python setup.py develop
-before_script:
-- flake8 setup.py "bashup"
-- pyflakes setup.py "bashup"
-script: nosetests --with-doctest --doctest-options="+NORMALIZE_WHITESPACE" --with-coverage --cover-tests --cover-inclusive --cover-package="bashup" "bashup"
-after_success: coveralls
+  - pip install tox coveralls
+script:
+  - tox
+after_success:
+  - coveralls
 deploy:
   provider: pypi
   user: themattrix
