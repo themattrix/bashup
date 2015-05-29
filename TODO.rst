@@ -266,11 +266,23 @@ Anonymous Functions
         "${1}" < /proc/cpuinfo
     }
 
-    cpuinfo @[grep '^processor']
+    cpuinfo @(grep '^processor')
 
 
-I'd prefer a syntax with curly braces (``@{...}``), but aliases already has
-claim to them.
+Evaluates to something like:
+
+.. code:: bash
+
+    function cpuinfo {
+        "${1}" < /proc/cpuinfo
+    }
+
+    function __fn_0 {
+        grep '^processor'
+    }
+
+    cpuinfo __fn_0
+
 
 
 SSH Context
