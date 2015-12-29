@@ -4,16 +4,18 @@ from difflib import unified_diff
 from pprint import pformat
 
 try:
+    # pylint: disable=wrong-import-order
+    from cStringIO import StringIO
+except ImportError:          # pragma: no cover
+    # pylint: disable=wrong-import-order
+    from io import StringIO  # pragma: no cover
+
+try:
     # pylint: disable=invalid-name
     basestring
 except NameError:     # pragma: no cover
     # pylint: disable=invalid-name,redefined-builtin
     basestring = str  # pragma: no cover
-
-try:
-    from cStringIO import StringIO
-except ImportError:          # pragma: no cover
-    from io import StringIO  # pragma: no cover
 
 
 def diff(actual, expected):
