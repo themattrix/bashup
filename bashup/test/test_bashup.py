@@ -1,7 +1,7 @@
-import os
 import subprocess
-from glob import glob
+import os
 from os.path import join
+from glob import glob
 from textwrap import dedent
 
 from nose.plugins.skip import SkipTest
