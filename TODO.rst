@@ -46,7 +46,7 @@ Generated bash:
 Trap and Re-Raise Signal
 ------------------------
 
-  Inspired by `Proper handling of SIGINT/SIGQUIT <http://www.cons.org/cracauer/sigint.html>`
+  Inspired by `Proper handling of SIGINT/SIGQUIT <http://www.cons.org/cracauer/sigint.html>`_.
 
 .. code:: bash
 
@@ -181,19 +181,12 @@ Equivalent bash:
     }
 
     enable_ramdisk() {
+        ignore_failure show_args enable_ramdisk_impl "$@"
+    }
+
+    enable_ramdisk_impl() {
         ...
     }
-
-    eval "$(echo "enable_ramdisk() {"; )"
-
-    enable_ramdisk_0() {
-        show_args enable_ramdisk_orig "$@"
-    }
-
-    # TODO: finish this
-
-
-https://stackoverflow.com/questions/1203583/how-do-i-rename-a-bash-function
 
 
 Decorators can also be used to decorate a single line:
@@ -210,7 +203,7 @@ Equivalent bash:
     ignore_failure false
 
 
-The bash is actually (one character) shorter, but I think the bashup reads better.
+The bash is actually shorter (by one character), but I think the bashup reads better.
 
 
 Aliases
@@ -269,8 +262,11 @@ network, or from the web).
     # Insert a file from the web:
     @insert https://acme.com/scripts/snippit.sh
 
-    # Insert a gist from the web:
-    @gist 5725550
+    # Insert a gist from GitHub:
+    @insert gist:5725550
+
+    # Insert a file from a GitHub repo:
+    @insert github:user/repo@revision
 
     # Insert a file by relative path (and comment out each line!):
     @insert LICENSE.txt --comment
@@ -291,15 +287,6 @@ script is running. It is (functionally) equivalent to this:
 .. code:: bash
 
     $(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-
-
-Although in an attempt to make the solution *pure* bash (and not rely on
-``dirname``), I think the following solution is better:
-
-.. code:: bash
-
-    $(cd "${BASH_SOURCE[0]%/*}" && pwd)
-    # TODO: handle root
 
 
 `See this Stack Overflow discussion <http://stackoverflow.com/a/246128>`_ for
@@ -373,7 +360,7 @@ Docopt command-line builder:
     }
 
 
-Generates something like this (untested):
+The above bashup would generate something like the following bash:
 
 .. code:: bash
 
@@ -427,13 +414,13 @@ Generates something like this (untested):
         exit 0
     }
 
+    function docopt_error {
+        printf 'Unknown option "%s"\n' "${1}"
+        docopt_usage
+    }
+
     docopt() {
         args=()
-
-        function docopt_error {
-            printf 'Unknown option "%s"\n' "${1}"
-            docopt_usage
-        }
 
         while (( $# )); do
             if [ "${1}" == "-h" ] || [ "${1}" == "--help" ]; then
@@ -522,8 +509,6 @@ Generates something like this (untested):
             fi
             shift
         done
-
-        unset -f docopt_error
     }
 
     [ "${BASH_SOURCE[0]}" != "${0}" ] || {
@@ -534,19 +519,3 @@ Generates something like this (untested):
 
 Note that the above code requires Bash >= 4.0 due to the use of associative
 arrays.
-
-
-SSH Context
------------
-
-This one might be tricky to implement robustly. The idea is that the given
-block of code is converted into a string and executed on the remote machine.
-
-.. code:: bash
-
-    @ssh user@host {
-        ...
-    }
-
-
-The code block must be recursively inlined, then converted to a string.
