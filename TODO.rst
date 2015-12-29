@@ -1,6 +1,79 @@
 Planned Constructs
 ==================
 
+Bash Options
+------------
+
+This will be inserted at the top of every script (including the comments):
+
+.. code:: bash
+
+    set -o errexit      # exit immediately if a command fails
+    set -o pipefail     # ...including commands in a pipeline
+    set -o nounset      # use of undefined variables is an error
+    set -o noclobber    # prevent redirection from overwriting files
+    shopt -o nullglob   # expand an unmatching glob pattern to a null string
+    shopt -o dotglob    # glob matches files starting with a dot
+
+
+Safer Echo
+----------
+
+.. code:: bash
+
+    # print a string
+    @echo "--help"
+
+    # print an array
+    @echo @args
+
+
+Generated bash:
+
+.. code:: bash
+
+    # print a string
+    printf '%s\n' "--help"
+
+    # print an array
+    printf '%s\n' 'args=('
+    for i in "${!args[@]}"; do
+        printf '  [%q]=%q\n' "${i}" "${args[${i}]}"
+    done
+    printf ')\n'
+
+
+Trap and Re-Raise Signal
+------------------------
+
+  Inspired by `Proper handling of SIGINT/SIGQUIT <http://www.cons.org/cracauer/sigint.html>`
+
+.. code:: bash
+
+    @trap INT QUIT {
+        ...
+    }
+
+
+A well-behaved script should re-raise every signal that it can.
+To do this properly, the script must reset the signal and then kill itself
+with that same signal. Since there's no way to determine which signal was
+raised, there must be a separate handler for each so that the correct signal
+is re-raised.
+
+.. code:: bash
+
+    __INT_QUIT_handler() {
+        ...
+    }
+
+    trap '__INT_QUIT_handler "$@"; trap INT; kill -INT $$' INT
+    trap '__INT_QUIT_handler "$@"; trap QUIT; kill -QUIT $$' QUIT
+
+
+Note that for clean-up tasks, a context manager should generally be used instead.
+
+
 Context Managers
 ----------------
 
@@ -38,22 +111,22 @@ The generated bash would look something like this:
 
 .. code:: bash
 
-    function with_mktemp() {(
+    with_mktemp() (
         local body_fn=${1}; shift
         local tmp=$(mktemp "$@")
 
-        function exit_ctx() {
+        exit_ctx() {
             rm -f "${tmp}"
         }
 
         trap exit_ctx EXIT
 
         "${body_fn}" "${tmp}"
-    )}
+    )
 
     ...
 
-    function ctx_0() {
+    ctx_0() {
         local tmp=${1}
         ...
     }
@@ -74,9 +147,9 @@ Like Python decorators, but evaluated every time the function is called.
 
     # Decorator to temporarily toggle off exiting on non-zero exit statuses.
     @fn ignore_failure {
-        set +e +o pipefail
-        "$@" || true
-        set -e -o pipefail
+        set +e
+        "$@" || :
+        set -e
     }
 
     # Print a message with the name and arguments of the decorated fn.
@@ -96,26 +169,28 @@ Equivalent bash:
 
 .. code:: bash
 
-    function ignore_failure {
-        set +e +o pipefail
-        "$@" || true
-        set -e -o pipefail
+    ignore_failure() {
+        set +e
+        "$@" || :
+        set -e
     }
 
-    function show_args {
+    show_args() {
         echo ">>> $@"
         "$@"
     }
 
-    function enable_ramdisk {
+    enable_ramdisk() {
         ...
     }
 
     eval "$(echo "enable_ramdisk() {"; )"
 
-    function enable_ramdisk_0 {
+    enable_ramdisk_0() {
         show_args enable_ramdisk_orig "$@"
     }
+
+    # TODO: finish this
 
 
 https://stackoverflow.com/questions/1203583/how-do-i-rename-a-bash-function
@@ -150,14 +225,34 @@ temporary file with a longer-than-normal name:
 
 .. code:: bash
 
-    @{mytmp} = @with(mktemp tmp.XXXXXXXXXXXXXXXXXXXXXXXXXX)
+    @mytmp = @with(mktemp tmp.XXXXXXXXXXXXXXXXXXXXXXXXXX)
 
 
 The alias can then be treated as a literal text substitution:
 
 .. code:: bash
 
-    @{mytmp} as tmp {
+    @mytmp as tmp {
+        ...
+    }
+
+
+Macros
+------
+
+Macros are aliases that can take options. Or, more accurately - aliases are
+just a special case of macros that take no options.
+
+Here's a similar example to above:
+
+.. code:: bash
+
+    @mytmp(extra) = @with(mktemp @extra tmp.XXXXXXXXXXXXXXXXXXXXXXXXXX)
+
+
+.. code:: bash
+
+    @mytmp(-d) as tmp_dir {
         ...
     }
 
@@ -178,19 +273,19 @@ network, or from the web).
     @gist 5725550
 
     # Insert a file by relative path (and comment out each line!):
-    @insert --comment LICENSE.txt
+    @insert LICENSE.txt --comment
 
 
 Unlike other constructs, this does not compile into some equivalent bash code.
 Instead, the text is inserted directly into the document before other
-constructs are evaluated. (Aliases would have to be evaluated both before and
-after inserting snippits).
+constructs are evaluated. (Aliases and macros would have to be evaluated both
+before and after inserting snippits).
 
 
 Script Directory
 ----------------
 
-The ``@{dir}`` alias will allow concise access to directory from which the
+The ``@dir`` alias will allow concise access to directory from which the
 script is running. It is (functionally) equivalent to this:
 
 .. code:: bash
@@ -204,6 +299,7 @@ Although in an attempt to make the solution *pure* bash (and not rely on
 .. code:: bash
 
     $(cd "${BASH_SOURCE[0]%/*}" && pwd)
+    # TODO: handle root
 
 
 `See this Stack Overflow discussion <http://stackoverflow.com/a/246128>`_ for
@@ -213,7 +309,7 @@ the pros and cons of this approach.
 Sourced
 -------
 
-The ``@{sourced}`` alias will allow concise checking of whether or not the
+The ``@sourced`` alias will allow concise checking of whether or not the
 script is being sourced or called directly. It is exactly equivalent to:
 
 .. code:: bash
@@ -225,14 +321,14 @@ It can be used to avoid side effects when the script is being sourced:
 
 .. code:: bash
 
-    @{sourced} || main "$@"
+    @sourced || main "$@"
 
 
 Check if Unset
 --------------
 
-The ``@{notset}`` alias allows for checking whether or not a variable is set
-without willing it into existence. For example, ``@{notset my_var}`` is exactly
+The ``@notset`` macro allows for checking whether or not a variable is set
+without willing it into existence. For example, ``@notset(my_var)`` is exactly
 equivalent to:
 
 .. code:: bash
@@ -240,49 +336,204 @@ equivalent to:
     [ "_${my_var:-notset}" == "_notset" ]
 
 
-Include Guard
--------------
+Docopt
+------
 
-The include guard will be auto-added...?
-
-.. code:: bash
-
-    if [ -z "${INCLUDE_GUARD_16FD270}" ]; then
-    readonly INCLUDE_GUARD_16FD270=1
-
-    ...
-
-    fi
-
-    @{sourced} || main "$@"
-
-
-Anonymous Functions
--------------------
+Docopt command-line builder:
 
 .. code:: bash
 
-    @fn cpuinfo {
-        "${1}" < /proc/cpuinfo
+    # Naval Fate.
+    #
+    # Usage:
+    #   naval_fate ship new <name>...
+    #   naval_fate ship <name> move <x> <y> [--speed=<kn>]
+    #   naval_fate ship shoot <x> <y>
+    #   naval_fate mine (set|remove) <x> <y> [--moored|--drifting]
+    #   naval_fate -h | --help
+    #   naval_fate --version
+    #
+    # Options:
+    #   -h --help     Show this screen.
+    #   --version     Show version.
+    #   --speed=<kn>  Speed in knots [default: 10].
+    #   --moored      Moored (anchored) mine.
+    #   --drifting    Drifting mine.
+    #
+    # Version:
+    #   Naval Fate 2.0
+
+    @fn main {
+        @echo @args
     }
 
-    cpuinfo @(grep '^processor')
+    @sourced || {
+        @docopt
+        main
+    }
 
 
-Evaluates to something like:
+Generates something like this (untested):
 
 .. code:: bash
 
-    function cpuinfo {
-        "${1}" < /proc/cpuinfo
+    #!/bin/bash
+
+    DOCOPT_DESC='Naval Fate.'
+
+    DOCOPT_USAGE='
+      naval_fate ship new <name>...
+      naval_fate ship <name> move <x> <y> [--speed=<kn>]
+      naval_fate ship shoot <x> <y>
+      naval_fate mine (set|remove) <x> <y> [--moored|--drifting]
+      naval_fate -h | --help
+      naval_fate --version'
+
+    DOCOPT_OPTIONS='
+      -h --help     Show this screen.
+      --version     Show version.
+      --speed=<kn>  Speed in knots [default: 10].
+      --moored      Moored (anchored) mine.
+      --drifting    Drifting mine.'
+
+    DOCOPT_VERSION='Naval Fate 2.0'
+
+    main() {
+        printf '%s\n' 'args=('
+        for i in "${!args[@]}"; do
+            printf '  [%q]=%q\n' "${i}" "${args[${i}]}"
+        done
+        printf ')\n'
     }
 
-    function __fn_0 {
-        grep '^processor'
+    docopt_usage() {
+        printf 'Usage:\n%s\n\nOptions:\n%s' \
+            "${DOCOPT_USAGE}" \
+            "${DOCOPT_OPTIONS}"
+        exit 1
     }
 
-    cpuinfo __fn_0
+    docopt_help() {
+        printf '%s\n\nUsage:\n%s\n\nOptions:\n%s\n\nVersion:\n  %s' \
+            "${DOCOPT_DESC}" \
+            "${DOCOPT_USAGE}" \
+            "${DOCOPT_OPTIONS}" \
+            "${DOCOPT_VERSION}"
+        exit 0
+    }
 
+    docopt_version() {
+        printf '%s\n' "${DOCOPT_VERSION}"
+        exit 0
+    }
+
+    docopt() {
+        args=()
+
+        function docopt_error {
+            printf 'Unknown option "%s"\n' "${1}"
+            docopt_usage
+        }
+
+        while (( $# )); do
+            if [ "${1}" == "-h" ] || [ "${1}" == "--help" ]; then
+                docopt_help
+            elif [ "${1}" == "--version" ]; then
+                docopt_version
+            elif [ "${1}" == "ship" ]; then
+                shift
+                if [ "${1}" == "new" ]; then
+                    shift
+                    if [ $# -eq 0 ]; then
+                        printf 'Failed to specify at least one <name>\n'
+                        docopt_usage
+                    fi
+                    args["<name>"]=(${@})
+                    shift $#
+                    args["new"]=true
+                elif [ "${1}" == "shoot" ]; then
+                    shift
+                    if [ $# -ne 2 ]; then
+                        printf 'Failed to specify arguments: <x> <y>\n'
+                        docopt_usage
+                    fi
+                    args["<x>"]=${1}
+                    args["<y>"]=${2}
+                    shift 2
+                    args["shoot"]=true
+                else
+                    if [ $# -ne 1 ]; then
+                        printf 'Failed to specify argument <name>\n'
+                        docopt_usage
+                    fi
+                    args["<name>"]=${1}
+                    shift
+                    if [ "${1}" == "move" ]; then
+                        shift
+                        if [ $# -lt 2 ]; then
+                            printf 'Failed to specify arguments: <x> <y>\n'
+                            docopt_usage
+                        fi
+                        args["<x>"]=${1}
+                        args["<y>"]=${2}
+                        shift 2
+                        while (( $# )); do
+                            if [[ "${1}" == --speed=* ]]; then
+                                args["--speed"]=${1#--speed=}
+                                shift
+                            else
+                                docopt_error "${1}"
+                            fi
+                        done
+                        args["move"]=true
+                    else
+                        docopt_error "${1}"
+                    fi
+                fi
+            elif [ "${1}" == "mine" ]; then
+                shift
+                if [ "${1}" == "set" ] || [ "${1}" == "remove" ]; then
+                    args["${1}"]=true
+                    shift
+                else
+                    docopt_error "${1}"
+                fi
+                if [ $# -lt 2 ]; then
+                    printf 'Failed to specify arguments: <x> <y>\n'
+                    docopt_usage
+                fi
+                args["<x>"]=${1}
+                args["<y>"]=${2}
+                shift 2
+                if [ $# -eq 0 ]; then
+                    :
+                elif [ "${1}" == "--moored" ]; then
+                    args["--moored"]=true
+                    shift
+                elif [ "${1}" == "--drifting" ]; then
+                    args["--drifting"]=true
+                    shift
+                else
+                    docopt_error "${1}"
+                fi
+                args["mine"]=true
+            else
+                docopt_error "${1}"
+            fi
+            shift
+        done
+
+        unset -f docopt_error
+    }
+
+    [ "${BASH_SOURCE[0]}" != "${0}" ] || {
+        docopt "$@" 1>&2
+        main
+    }
+
+
+Note that the above code requires Bash >= 4.0 due to the use of associative
+arrays.
 
 
 SSH Context
