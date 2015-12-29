@@ -1,7 +1,10 @@
 from __future__ import division
-import jinja2
+
 import re
-from textwrap import dedent
+import textwrap
+
+import jinja2
+
 from bashup.parse.fn import FN, FnSpec
 
 
@@ -52,7 +55,7 @@ def compile_fn_spec_to_bash(fn_spec):
 # Private Helpers
 #
 
-__FN_TEMPLATE = dedent("""
+__FN_TEMPLATE = textwrap.dedent("""
 
     #
     # usage: {{ fn.name }} {{ param_usage }}[ARGS]

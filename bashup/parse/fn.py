@@ -1,8 +1,10 @@
 # pylint: disable=pointless-statement, expression-not-assigned
 # pylint: disable=too-few-public-methods
 
-import pyparsing as pp
 from collections import namedtuple
+
+import pyparsing as pp
+
 from bashup.parse.value import VALUE
 from bashup.parse.name import NAME
 

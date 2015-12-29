@@ -2,10 +2,12 @@ import re
 from contextlib import contextmanager
 from glob import glob
 from itertools import product
+from os.path import abspath, dirname, join
+
 from mock import call, Mock
 from nose.tools import eq_, raises
 from temporary import temp_file
-from os.path import abspath, dirname, join
+
 from bashup.__main__ import compile_file, main, run_file
 from bashup.test.common import assert_eq, captured_stdout
 

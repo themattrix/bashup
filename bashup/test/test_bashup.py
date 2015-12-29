@@ -1,11 +1,13 @@
 import os
 import subprocess
 from glob import glob
+from os.path import join
+from textwrap import dedent
+
 from nose.plugins.skip import SkipTest
 from nose.tools import eq_
-from os.path import join
 from temporary import in_temp_dir, temp_file
-from textwrap import dedent
+
 from bashup.test.common import assert_eq
 
 
