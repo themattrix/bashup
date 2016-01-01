@@ -166,15 +166,15 @@ Changelog
    :target: https://coveralls.io/r/themattrix/bashup
 .. |Health| image:: https://landscape.io/github/themattrix/bashup/master/landscape.svg
    :target: https://landscape.io/github/themattrix/bashup/master
-.. |Version| image:: https://pypip.in/version/bashup/badge.svg?text=version
+.. |Version| image:: https://img.shields.io/pypi/v/bashup.svg
    :target: https://pypi.python.org/pypi/bashup
-.. |Downloads| image:: https://pypip.in/download/bashup/badge.svg
+.. |Downloads| image:: https://img.shields.io/pypi/dm/bashup.svg
    :target: https://pypi.python.org/pypi/bashup
-.. |Compatibility| image:: https://pypip.in/py_versions/bashup/badge.svg
+.. |Compatibility| image:: https://img.shields.io/pypi/pyversions/bashup.svg
    :target: https://pypi.python.org/pypi/bashup
-.. |Implementations| image:: https://pypip.in/implementation/bashup/badge.svg
+.. |Implementations| image:: https://img.shields.io/pypi/implementation/bashup.svg
    :target: https://pypi.python.org/pypi/bashup
-.. |Format| image:: https://pypip.in/format/bashup/badge.svg
+.. |Format| image:: https://img.shields.io/pypi/format/bashup.svg
    :target: https://pypi.python.org/pypi/bashup
 
 
