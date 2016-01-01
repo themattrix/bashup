@@ -12,7 +12,7 @@ any valid bash script is also a valid bashup script.
 
 .. code:: bash
 
-    #/bin/bash
+    #!/bin/bash
 
     @fn hi greeting='Hello', target {
         echo "${greeting}, ${target}!"
@@ -49,7 +49,7 @@ Compiled code (``above_example.sh``):
 
 .. code:: bash
 
-    #/bin/bash
+    #!/bin/bash
 
     #
     # usage: hi [--greeting <GREETING>] --target <TARGET> [ARGS]
