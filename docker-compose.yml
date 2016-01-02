@@ -1,4 +1,4 @@
 tox:
   build: .
   volumes:
-  - ".:/src:ro"
+    - ".:/src:ro"
