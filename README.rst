@@ -141,6 +141,12 @@ See `this document for planned features`_.
 Changelog
 ---------
 
+**1.1.2**
+
+- Badges now use shields.io.
+- Fixed - |Issue5|__
+
+
 **1.1.1**
 
 - Tweaked the README.
@@ -184,6 +190,9 @@ Changelog
 
 
 .. Issues
+
+.. |Issue5| replace:: Issue #4: "Make compatible with latest "themattrix/tox" Docker baseimage."
+__ https://github.com/themattrix/bashup/issues/5
 
 .. |Issue2| replace:: Issue #2: "Run generated bash code against multiple versions of bash."
 __ https://github.com/themattrix/bashup/issues/2
