@@ -12,8 +12,8 @@ This will be inserted at the top of every script (including the comments):
     set -o pipefail     # ...including commands in a pipeline
     set -o nounset      # use of undefined variables is an error
     set -o noclobber    # prevent redirection from overwriting files
-    shopt -o nullglob   # expand an unmatching glob pattern to a null string
-    shopt -o dotglob    # glob matches files starting with a dot
+    shopt -s nullglob   # expand an unmatching glob pattern to a null string
+    shopt -s dotglob    # glob matches files starting with a dot
 
 
 Safer Echo
