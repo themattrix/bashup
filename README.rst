@@ -191,7 +191,7 @@ Changelog
 
 .. Issues
 
-.. |Issue5| replace:: Issue #4: "Make compatible with latest "themattrix/tox" Docker baseimage."
+.. |Issue5| replace:: Issue #5: "Make compatible with latest "themattrix/tox" Docker baseimage."
 __ https://github.com/themattrix/bashup/issues/5
 
 .. |Issue2| replace:: Issue #2: "Run generated bash code against multiple versions of bash."
