@@ -414,7 +414,7 @@ The above bashup would generate something like the following bash:
         exit 0
     }
 
-    function docopt_error {
+    docopt_error() {
         printf 'Unknown option "%s"\n' "${1}"
         docopt_usage
     }

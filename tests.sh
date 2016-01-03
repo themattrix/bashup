@@ -4,23 +4,23 @@ set -e -o pipefail
 
 readonly PACKAGE_DIR="bashup"
 
-function each_iname {
+each_iname() {
     local iname=${1}; shift
 
-    find * -type f -iname "${iname}" | while read filename; do
+    find * -type f -iname "${iname}" | while read -r filename; do
         "$@" "${filename}"
     done
 }
 
-function static_analysis {
+static_analysis() {
     each_iname "*.rst" rst2html.py --exit-status=2 > /dev/null
     python setup.py check --strict --restructuredtext --metadata
     flake8 setup.py "${PACKAGE_DIR}"
     pyflakes setup.py "${PACKAGE_DIR}"
-    pylint -E --reports=no --rcfile=.pylintrc "${PACKAGE_DIR}"
+    pylint --reports=no --rcfile=.pylintrc "${PACKAGE_DIR}"
 }
 
-function unit_test {
+unit_test() {
     nosetests \
         --exe \
         --with-doctest \
@@ -32,7 +32,7 @@ function unit_test {
         "${PACKAGE_DIR}"
 }
 
-function main {
+main() {
     if [ "${1}" == "--static-analysis" ]; then
         static_analysis
     fi

@@ -82,7 +82,7 @@ Compiled code (``above_example.sh``):
         __hi "${greeting}" "${target}" "${args[@]}"
     }
 
-    function __hi() {
+    __hi() {
         local greeting=${1}
         local target=${2}
         shift 2
