@@ -1,0 +1,17 @@
+---
+engines:
+  duplication:
+    enabled: true
+    config:
+      languages:
+      - python
+  fixme:
+    enabled: true
+    exclude_fingerprints:
+    - fc30a48aa043da8c372c08e1f82041b8  # exclude mention of TODO.rst in README.rst
+  radon:
+    enabled: true
+ratings:
+  paths:
+  - "**.py"
+exclude_paths: []
