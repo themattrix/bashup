@@ -3,29 +3,27 @@
 set -e -o pipefail
 
 #
-# usage: enable_ramdisk --size <SIZE> [--path <PATH>] [ARGS]
+# usage: enable_ramdisk --size=<SIZE> [--path=<PATH>] [ARGS]
 #
 enable_ramdisk() {
     local size
     local size__set=0
     local path='/ramdisk'
     local args=()
-    local i
 
-    for ((i = 1; i <= $#; i++)); do
-        if [ "${!i}" == "--size" ]; then
-            ((i++))
-            size=${!i}
+    while (( $# )); do
+        if [[ "${1}" == --size=* ]]; then
+            size=${1#--size=}
             size__set=1
-        elif [ "${!i}" == "--path" ]; then
-            ((i++))
-            path=${!i}
+        elif [[ "${1}" == --path=* ]]; then
+            path=${1#--path=}
         else
-            args+=("${!i}")
+            args+=("${1}")
         fi
+        shift
     done
 
-    if [ ${size__set} -eq 0 ]; then
+    if ! (( size__set )); then
         echo "[ERROR] The --size parameter must be given."
         return 1
     fi
@@ -56,4 +54,4 @@ ensure_root() {
 }
 
 ensure_root
-enable_ramdisk --size "4G"
+enable_ramdisk --size="4G"

@@ -1,6 +1,6 @@
 .git
 .gitignore
-.landscape.yml
+.codeclimate.yml
 .travis.yml
 docker-compose.yml
 

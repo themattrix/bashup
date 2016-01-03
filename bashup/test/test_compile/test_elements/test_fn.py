@@ -26,29 +26,27 @@ def test_compile_fn_spec_to_bash_without_args():
 def test_compile_fn_spec_to_bash_with_args():
     expected = dedent("""
         #
-        # usage: enable_ramdisk --size <SIZE> [--path <PATH>] [ARGS]
+        # usage: enable_ramdisk --size=<SIZE> [--path=<PATH>] [ARGS]
         #
         enable_ramdisk() {
             local size
             local size__set=0
             local path='/ramdisk'
             local args=()
-            local i
 
-            for ((i = 1; i <= $#; i++)); do
-                if [ "${!i}" == "--size" ]; then
-                    ((i++))
-                    size=${!i}
+            while (( $# )); do
+                if [[ "${1}" == --size=* ]]; then
+                    size=${1#--size=}
                     size__set=1
-                elif [ "${!i}" == "--path" ]; then
-                    ((i++))
-                    path=${!i}
+                elif [[ "${1}" == --path=* ]]; then
+                    path=${1#--path=}
                 else
-                    args+=("${!i}")
+                    args+=("${1}")
                 fi
+                shift
             done
 
-            if [ ${size__set} -eq 0 ]; then
+            if ! (( size__set )); then
                 echo "[ERROR] The --size parameter must be given."
                 return 1
             fi
@@ -138,29 +136,27 @@ def test_compile_fns_to_bash_multiple_fns_with_args():
         set -e -o pipefail
 
         #
-        # usage: enable_ramdisk --size <SIZE> [--path <PATH>] [ARGS]
+        # usage: enable_ramdisk --size=<SIZE> [--path=<PATH>] [ARGS]
         #
         enable_ramdisk() {
             local size
             local size__set=0
             local path='/ramdisk'
             local args=()
-            local i
 
-            for ((i = 1; i <= $#; i++)); do
-                if [ "${!i}" == "--size" ]; then
-                    ((i++))
-                    size=${!i}
+            while (( $# )); do
+                if [[ "${1}" == --size=* ]]; then
+                    size=${1#--size=}
                     size__set=1
-                elif [ "${!i}" == "--path" ]; then
-                    ((i++))
-                    path=${!i}
+                elif [[ "${1}" == --path=* ]]; then
+                    path=${1#--path=}
                 else
-                    args+=("${!i}")
+                    args+=("${1}")
                 fi
+                shift
             done
 
-            if [ ${size__set} -eq 0 ]; then
+            if ! (( size__set )); then
                 echo "[ERROR] The --size parameter must be given."
                 return 1
             fi
@@ -191,7 +187,7 @@ def test_compile_fns_to_bash_multiple_fns_with_args():
         }
 
         ensure_root
-        enable_ramdisk --size "4G"
+        enable_ramdisk --size="4G"
     """).strip()
 
     actual = fn.compile_fns_to_bash(bashup_str=dedent("""
@@ -215,7 +211,7 @@ def test_compile_fns_to_bash_multiple_fns_with_args():
         }
 
         ensure_root
-        enable_ramdisk --size "4G"
+        enable_ramdisk --size="4G"
     """).strip())
 
     assert_eq(actual, expected)
@@ -225,29 +221,27 @@ def test_compile_fns_to_bash_custom_indents():
     expected = dedent("""
         {
         \t#
-        \t# usage: enable_ramdisk --size <SIZE> [--path <PATH>] [ARGS]
+        \t# usage: enable_ramdisk --size=<SIZE> [--path=<PATH>] [ARGS]
         \t#
         \tenable_ramdisk() {
         \t local size
         \t local size__set=0
         \t local path='/ramdisk'
         \t local args=()
-        \t local i
 
-        \t for ((i = 1; i <= $#; i++)); do
-        \t  if [ "${!i}" == "--size" ]; then
-        \t   ((i++))
-        \t   size=${!i}
+        \t while (( $# )); do
+        \t  if [[ "${1}" == --size=* ]]; then
+        \t   size=${1#--size=}
         \t   size__set=1
-        \t  elif [ "${!i}" == "--path" ]; then
-        \t   ((i++))
-        \t   path=${!i}
+        \t  elif [[ "${1}" == --path=* ]]; then
+        \t   path=${1#--path=}
         \t  else
-        \t   args+=("${!i}")
+        \t   args+=("${1}")
         \t  fi
+        \t  shift
         \t done
 
-        \t if [ ${size__set} -eq 0 ]; then
+        \t if ! (( size__set )); then
         \t  echo "[ERROR] The --size parameter must be given."
         \t  return 1
         \t fi
@@ -309,29 +303,27 @@ def test_compile_fns_to_bash_custom_indents_with_blank_lines():
     expected = dedent("""
         {
         \t#
-        \t# usage: enable_ramdisk --size <SIZE> [--path <PATH>] [ARGS]
+        \t# usage: enable_ramdisk --size=<SIZE> [--path=<PATH>] [ARGS]
         \t#
         \tenable_ramdisk() {
         \t local size
         \t local size__set=0
         \t local path='/ramdisk'
         \t local args=()
-        \t local i
 
-        \t for ((i = 1; i <= $#; i++)); do
-        \t  if [ "${!i}" == "--size" ]; then
-        \t   ((i++))
-        \t   size=${!i}
+        \t while (( $# )); do
+        \t  if [[ "${1}" == --size=* ]]; then
+        \t   size=${1#--size=}
         \t   size__set=1
-        \t  elif [ "${!i}" == "--path" ]; then
-        \t   ((i++))
-        \t   path=${!i}
+        \t  elif [[ "${1}" == --path=* ]]; then
+        \t   path=${1#--path=}
         \t  else
-        \t   args+=("${!i}")
+        \t   args+=("${1}")
         \t  fi
+        \t  shift
         \t done
 
-        \t if [ ${size__set} -eq 0 ]; then
+        \t if ! (( size__set )); then
         \t  echo "[ERROR] The --size parameter must be given."
         \t  return 1
         \t fi

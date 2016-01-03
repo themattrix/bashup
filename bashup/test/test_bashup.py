@@ -90,18 +90,18 @@ __BASHUP_STR = dedent("""
 
     # Ensure that default parameters work and can be overridden.
     hi
-    hi --target "Human"
-    hi --greeting "Greetings"
-    hi --greeting "Greetings" --target "Human"
-    hi --greeting "Greetings" --target "Human" " Have" "fun!"
+    hi --target="Human"
+    hi --greeting="Greetings"
+    hi --greeting="Greetings" --target="Human"
+    hi --greeting="Greetings" --target="Human" " Have" "fun!"
 
     # Ensure that piping between fns works.
     {
-        hi --greeting "What now" --target "Human?"
-        hi --greeting "Welcome" --target "Cyborg"
-        hi --greeting "Hi" --target "human"
+        hi --greeting="What now" --target="Human?"
+        hi --greeting="Welcome" --target="Cyborg"
+        hi --greeting="Hi" --target="human"
 
-    } | filter --regex "[Hh]uman"
+    } | filter --regex="[Hh]uman"
 
     exit 55
 """).strip()
@@ -127,5 +127,5 @@ def __is_bash_in_path():
     try:
         subprocess.check_call(('bash', '-c', ':'))
         return True
-    except subprocess.CalledProcessError:  # pragma: no cover
-        return False                       # pragma: no cover
+    except (subprocess.CalledProcessError, OSError):    # pragma: no cover
+        return False                                    # pragma: no cover

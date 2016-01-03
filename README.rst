@@ -18,7 +18,7 @@ any valid bash script is also a valid bashup script.
         echo "${greeting}, ${target}!"
     }
 
-    hi --target 'World'
+    hi --target='World'
 
 
 Installation:
@@ -52,29 +52,27 @@ Compiled code (``above_example.sh``):
     #!/bin/bash
 
     #
-    # usage: hi [--greeting <GREETING>] --target <TARGET> [ARGS]
+    # usage: hi [--greeting=<GREETING>] --target=<TARGET> [ARGS]
     #
     hi() {
         local greeting='Hello'
         local target
         local target__set=0
         local args=()
-        local i
 
-        for ((i = 1; i <= $#; i++)); do
-            if [ "${!i}" == "--greeting" ]; then
-                ((i++))
-                greeting=${!i}
-            elif [ "${!i}" == "--target" ]; then
-                ((i++))
-                target=${!i}
+        while (( $# )); do
+            if [[ "${1}" == --greeting=* ]]; then
+                greeting=${1#--greeting=}
+            elif [[ "${1}" == --target=* ]]; then
+                target=${1#--target=}
                 target__set=1
             else
-                args+=("${!i}")
+                args+=("${1}")
             fi
+            shift
         done
 
-        if [ ${target__set} -eq 0 ]; then
+        if ! (( target__set )); then
             echo "[ERROR] The --target parameter must be given."
             return 1
         fi
@@ -90,7 +88,7 @@ Compiled code (``above_example.sh``):
         echo "${greeting}, ${target}!"
     }
 
-    hi --target 'World'
+    hi --target='World'
 
 
 Supported Bash Versions
@@ -116,19 +114,17 @@ For example:
 .. code:: bash
 
     #
-    # usage: hi [--greeting <GREETING>] --target <TARGET> [ARGS]
+    # usage: hi [--greeting=<GREETING>] --target=<TARGET> [ARGS]
     #
     hi() {
       local greeting='Hello'
       local target
       local target__set=0
       local args=()
-      local i
 
-      for ((i = 1; i <= $#; i++)); do
-        if [ "${!i}" == "--greeting" ]; then
-          ((i++))
-          greeting=${!i}
+      while (( $# )); do
+        if [[ "${1}" == --greeting=* ]; then
+          greeting=${1#--greeting=}
           ...
 
 
@@ -140,6 +136,11 @@ See `this document for planned features`_.
 
 Changelog
 ---------
+
+**2.0.0**
+
+- Fixed - |Issue7|__
+
 
 **1.1.2**
 
@@ -190,6 +191,9 @@ Changelog
 
 
 .. Issues
+
+.. |Issue7| replace:: Issue #7: "Named arguments in functions should use --arg=value instead of --arg value"
+__ https://github.com/themattrix/bashup/issues/7
 
 .. |Issue5| replace:: Issue #5: "Make compatible with latest "themattrix/tox" Docker baseimage."
 __ https://github.com/themattrix/bashup/issues/5

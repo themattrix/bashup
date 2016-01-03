@@ -56,7 +56,6 @@ def compile_fn_spec_to_bash(fn_spec):
 #
 
 __FN_TEMPLATE = textwrap.dedent("""
-
     #
     # usage: {{ fn.name }} {{ param_usage }}[ARGS]
     #
@@ -71,31 +70,30 @@ __FN_TEMPLATE = textwrap.dedent("""
         {% endif %}
         {% endfor %}
         local args=()
-        local i
 
-        for ((i = 1; i <= $#; i++)); do
+        while (( $# )); do
             {% for arg in fn.args %}
             {% set param = "--" ~ arg.name.replace('_', '-') %}
             {% if loop.index == 1 %}
-            if [ "${!i}" == "{{ param }}" ]; then
+            if [[ "${1}" == {{ param }}=* ]]; then
             {% else %}
-            elif [ "${!i}" == "{{ param }}" ]; then
+            elif [[ "${1}" == {{ param }}=* ]]; then
             {% endif %}
-                ((i++))
-                {{ arg.name }}=${!i}
+                {{ arg.name }}=${1#{{ param }}=}
                 {% if arg.value is none %}
                 {{ arg.name }}__set=1
                 {% endif %}
             {% endfor %}
             else
-                args+=("${!i}")
+                args+=("${1}")
             fi
+            shift
         done
 
         {% for arg in fn.args %}
         {% if arg.value is none %}
         {% set param = "--" ~ arg.name.replace('_', '-') %}
-        if [ {{ "${" ~ arg.name ~ "__set}" }} -eq 0 ]; then
+        if ! (( {{ arg.name }}__set )); then
             echo "[ERROR] The {{ param }} parameter must be given."
             return 1
         fi
@@ -138,7 +136,7 @@ def __usage_for(arg):
     param = arg.name.replace('_', '-')
     is_optional = arg.value is not None
 
-    return '{b}--{param} <{PARAM}>{e} '.format(
+    return '{b}--{param}=<{PARAM}>{e} '.format(
         param=param,
         PARAM=param.upper(),
         b='[' if is_optional else '',

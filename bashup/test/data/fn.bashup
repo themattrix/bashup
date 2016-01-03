@@ -18,4 +18,4 @@ set -e -o pipefail
 }
 
 ensure_root
-enable_ramdisk --size "4G"
+enable_ramdisk --size="4G"
