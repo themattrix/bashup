@@ -5,7 +5,7 @@ set -e -o pipefail
 #
 # usage: enable_ramdisk --size <SIZE> [--path <PATH>] [ARGS]
 #
-function enable_ramdisk() {
+enable_ramdisk() {
     local size
     local size__set=0
     local path='/ramdisk'
@@ -33,7 +33,7 @@ function enable_ramdisk() {
     __enable_ramdisk "${size}" "${path}" "${args[@]}"
 }
 
-function __enable_ramdisk() {
+__enable_ramdisk() {
     local size=${1}
     local path=${2}
     shift 2
@@ -48,7 +48,7 @@ function __enable_ramdisk() {
 #
 # usage: ensure_root [ARGS]
 #
-function ensure_root() {
+ensure_root() {
     if [ ${EUID} -ne 0 ]; then
         echo "[ERROR] Script must be run as root."
         return 1

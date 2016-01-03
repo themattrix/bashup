@@ -61,7 +61,7 @@ __FN_TEMPLATE = textwrap.dedent("""
     # usage: {{ fn.name }} {{ param_usage }}[ARGS]
     #
     {% if fn.args|length %}
-    function {{ fn.name }}() {
+    {{ fn.name }}() {
         {% for arg in fn.args %}
         {% if arg.value is none %}
         local {{ arg.name }}
@@ -105,13 +105,13 @@ __FN_TEMPLATE = textwrap.dedent("""
         __{{ fn.name }} {{ arg_list }} "${args[@]}"
     }
 
-    function __{{ fn.name }}() {
+    __{{ fn.name }}() {
         {% for arg in fn.args %}
         local {{ arg.name }}={{ "${" ~ loop.index ~ "}" }}
         {% endfor %}
         shift {{ fn.args|length }}
     {% else %}
-    function {{ fn.name }}() {
+    {{ fn.name }}() {
     {%- endif %}
 
 """).strip()

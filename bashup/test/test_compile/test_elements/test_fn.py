@@ -13,7 +13,7 @@ def test_compile_fn_spec_to_bash_without_args():
         #
         # usage: hello [ARGS]
         #
-        function hello() {
+        hello() {
     """).strip()
 
     actual = fn.compile_fn_spec_to_bash(fn_spec=FnSpec(
@@ -28,7 +28,7 @@ def test_compile_fn_spec_to_bash_with_args():
         #
         # usage: enable_ramdisk --size <SIZE> [--path <PATH>] [ARGS]
         #
-        function enable_ramdisk() {
+        enable_ramdisk() {
             local size
             local size__set=0
             local path='/ramdisk'
@@ -56,7 +56,7 @@ def test_compile_fn_spec_to_bash_with_args():
             __enable_ramdisk "${size}" "${path}" "${args[@]}"
         }
 
-        function __enable_ramdisk() {
+        __enable_ramdisk() {
             local size=${1}
             local path=${2}
             shift 2
@@ -75,7 +75,7 @@ def test_compile_fns_to_bash_single_fn_without_args():
         #
         # usage: hello [ARGS]
         #
-        function hello() {
+        hello() {
             echo "hello!"
         }
     """).strip()
@@ -98,14 +98,14 @@ def test_compile_fns_to_bash_multiple_fns_without_args():
         #
         # usage: hello [ARGS]
         #
-        function hello() { echo "hello!"; }
+        hello() { echo "hello!"; }
 
         hello
 
         #
         # usage: world [ARGS]
         #
-        function world() {
+        world() {
             echo "world!"
         }
 
@@ -140,7 +140,7 @@ def test_compile_fns_to_bash_multiple_fns_with_args():
         #
         # usage: enable_ramdisk --size <SIZE> [--path <PATH>] [ARGS]
         #
-        function enable_ramdisk() {
+        enable_ramdisk() {
             local size
             local size__set=0
             local path='/ramdisk'
@@ -168,7 +168,7 @@ def test_compile_fns_to_bash_multiple_fns_with_args():
             __enable_ramdisk "${size}" "${path}" "${args[@]}"
         }
 
-        function __enable_ramdisk() {
+        __enable_ramdisk() {
             local size=${1}
             local path=${2}
             shift 2
@@ -183,7 +183,7 @@ def test_compile_fns_to_bash_multiple_fns_with_args():
         #
         # usage: ensure_root [ARGS]
         #
-        function ensure_root() {
+        ensure_root() {
             if [ ${EUID} -ne 0 ]; then
                 echo "[ERROR] Script must be run as root."
                 return 1
@@ -227,7 +227,7 @@ def test_compile_fns_to_bash_custom_indents():
         \t#
         \t# usage: enable_ramdisk --size <SIZE> [--path <PATH>] [ARGS]
         \t#
-        \tfunction enable_ramdisk() {
+        \tenable_ramdisk() {
         \t local size
         \t local size__set=0
         \t local path='/ramdisk'
@@ -255,7 +255,7 @@ def test_compile_fns_to_bash_custom_indents():
         \t __enable_ramdisk "${size}" "${path}" "${args[@]}"
         \t}
 
-        \tfunction __enable_ramdisk() {
+        \t__enable_ramdisk() {
         \t local size=${1}
         \t local path=${2}
         \t shift 2
@@ -272,7 +272,7 @@ def test_compile_fns_to_bash_custom_indents():
             #
             # usage: ensure_root [ARGS]
             #
-            function ensure_root() {
+            ensure_root() {
             \tif [ ${EUID} -ne 0 ]; then
             \t\techo "[ERROR] Script must be run as root."
             \t\treturn 1
@@ -311,7 +311,7 @@ def test_compile_fns_to_bash_custom_indents_with_blank_lines():
         \t#
         \t# usage: enable_ramdisk --size <SIZE> [--path <PATH>] [ARGS]
         \t#
-        \tfunction enable_ramdisk() {
+        \tenable_ramdisk() {
         \t local size
         \t local size__set=0
         \t local path='/ramdisk'
@@ -339,7 +339,7 @@ def test_compile_fns_to_bash_custom_indents_with_blank_lines():
         \t __enable_ramdisk "${size}" "${path}" "${args[@]}"
         \t}
 
-        \tfunction __enable_ramdisk() {
+        \t__enable_ramdisk() {
         \t local size=${1}
         \t local path=${2}
         \t shift 2

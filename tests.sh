@@ -22,6 +22,7 @@ function static_analysis {
 
 function unit_test {
     nosetests \
+        --exe \
         --with-doctest \
         --doctest-options="+NORMALIZE_WHITESPACE" \
         --with-coverage \

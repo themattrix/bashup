@@ -54,7 +54,7 @@ Compiled code (``above_example.sh``):
     #
     # usage: hi [--greeting <GREETING>] --target <TARGET> [ARGS]
     #
-    function hi() {
+    hi() {
         local greeting='Hello'
         local target
         local target__set=0
@@ -118,7 +118,7 @@ For example:
     #
     # usage: hi [--greeting <GREETING>] --target <TARGET> [ARGS]
     #
-    function hi() {
+    hi() {
       local greeting='Hello'
       local target
       local target__set=0

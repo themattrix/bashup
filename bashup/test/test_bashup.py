@@ -125,7 +125,7 @@ def __find_bash_binaries():
 
 def __is_bash_in_path():
     try:
-        subprocess.check_call(('bash', '-c', 'true'))
+        subprocess.check_call(('bash', '-c', ':'))
         return True
     except subprocess.CalledProcessError:  # pragma: no cover
         return False                       # pragma: no cover
