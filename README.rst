@@ -170,8 +170,8 @@ Changelog
    :target: https://travis-ci.org/themattrix/bashup
 .. |Coverage| image:: https://img.shields.io/coveralls/themattrix/bashup.svg
    :target: https://coveralls.io/r/themattrix/bashup
-.. |Health| image:: https://landscape.io/github/themattrix/bashup/master/landscape.svg
-   :target: https://landscape.io/github/themattrix/bashup/master
+.. |Health| image:: https://codeclimate.com/github/themattrix/bashup/badges/gpa.svg
+   :target: https://codeclimate.com/github/themattrix/bashup
 .. |Version| image:: https://img.shields.io/pypi/v/bashup.svg
    :target: https://pypi.python.org/pypi/bashup
 .. |Downloads| image:: https://img.shields.io/pypi/dm/bashup.svg
