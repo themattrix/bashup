@@ -14,8 +14,10 @@ Options:
 """
 import subprocess
 import sys
+
 from docopt import docopt
 from temporary import temp_file
+
 from bashup.compile.bash import compile_to_bash
 
 

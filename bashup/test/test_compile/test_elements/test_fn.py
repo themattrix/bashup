@@ -1,4 +1,5 @@
 from textwrap import dedent
+
 from bashup.parse.fn import FnSpec, ArgSpec
 from bashup.compile.elements import fn
 from bashup.test.common import assert_eq
@@ -358,6 +359,39 @@ def test_compile_fns_to_bash_custom_indents_with_blank_lines():
         \t  mount "${path}"
         \t fi
         \t}
+        }
+    """).strip())
+
+    assert_eq(actual, expected)
+
+
+def test_compile_fns_to_bash_nested_fns():
+    expected = dedent("""
+        #
+        # usage: level_1 [ARGS]
+        #
+        level_1() {
+            #
+            # usage: level_2 [ARGS]
+            #
+            level_2() {
+                #
+                # usage: level_3 [ARGS]
+                #
+                level_3() {
+                    :
+                }
+            }
+        }
+    """).strip()
+
+    actual = fn.compile_fns_to_bash(bashup_str=dedent("""
+        @fn level_1 {
+            @fn level_2 {
+                @fn level_3 {
+                    :
+                }
+            }
         }
     """).strip())
 
