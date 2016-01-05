@@ -18,7 +18,9 @@ setup(
         'pyparsing',
         'temporary',),
     tests_require=(
-        'mock',),
+        'mock',
+        'nose',
+        'temporary'),
     entry_points={
         'console_scripts': (
             'bashup = bashup.__main__:main',)},

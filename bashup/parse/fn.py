@@ -9,7 +9,10 @@ from bashup.parse.value import VALUE
 from bashup.parse.name import NAME
 
 
+# noinspection PyClassHasNoInit
 class FnSpec(namedtuple('FnSpec', ('name', 'args'))):
+    __slots__ = ()
+
     @classmethod
     def from_parse_result(cls, fn_parse_result):
         name = fn_parse_result['fn']['name']
@@ -19,7 +22,10 @@ class FnSpec(namedtuple('FnSpec', ('name', 'args'))):
         return cls(name=name, args=args)
 
 
+# noinspection PyClassHasNoInit
 class ArgSpec(namedtuple('ArgSpec', ('name', 'value'))):
+    __slots__ = ()
+
     @classmethod
     def from_list(cls, name_and_maybe_value):
         nv = name_and_maybe_value
@@ -57,6 +63,7 @@ FN = pp.Group(
 #
 
 class _Empty(object):
+    # noinspection PyPep8Naming
     @staticmethod
     def asList():  # pylint: disable=invalid-name
         return []

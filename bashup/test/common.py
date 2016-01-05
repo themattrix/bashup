@@ -11,6 +11,7 @@ except ImportError:          # pragma: no cover
     from io import StringIO  # pragma: no cover
 
 try:
+    # noinspection PyUnresolvedReferences,PyUnboundLocalVariable
     # pylint: disable=invalid-name
     basestring
 except NameError:     # pragma: no cover
@@ -19,17 +20,17 @@ except NameError:     # pragma: no cover
 
 
 def diff(actual, expected):
-    pactual = (
+    p_actual = (
         actual if isinstance(actual, basestring) else
         pformat(actual))     # pragma: no cover
 
-    pexpect = (
+    p_expect = (
         expected if isinstance(expected, basestring) else
         pformat(expected))   # pragma: no cover
 
     return '\n'.join(unified_diff(
-        pactual.splitlines(),
-        pexpect.splitlines(),
+        p_actual.splitlines(),
+        p_expect.splitlines(),
         fromfile='actual',
         tofile='expected'))  # pragma: no cover
 
