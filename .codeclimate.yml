@@ -5,12 +5,22 @@ engines:
     config:
       languages:
       - python
+    exclude_fingerprints:
+    - ac156103aff959bbd0ce562ca3bf86af
+    - 7fa6795f90800624382e62cd5e952bb3
+    - 7d386bb90bb15c7e62906d9f1f7fb104
+    - 282a46065ab1add8f287654855677ebe
+    - 24885420509b95ed94591e1c2efb14cb
+    - 1c45154a3c51855d57c53a69bd99fb5d
+    - 268ada9d301bf5c1d81de421052ed88b
   fixme:
     enabled: true
     exclude_fingerprints:
-    - fc30a48aa043da8c372c08e1f82041b8  # exclude mention of TODO.rst in README.rst
+    - fc30a48aa043da8c372c08e1f82041b8
   radon:
     enabled: true
+    exclude_fingerprints:
+    - af40544d0b7c1d8ceb057e5c31600502
 ratings:
   paths:
   - "**.py"
