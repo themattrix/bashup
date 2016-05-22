@@ -2,12 +2,11 @@ from setuptools import setup
 
 setup(
     name='bashup',
-    version='2.0.0',
+    version='3.0.0',
     packages=(
         'bashup',
         'bashup.compile',
-        'bashup.compile.elements',
-        'bashup.parse'),
+        'bashup.compile.elements'),
     url='https://github.com/themattrix/bashup',
     license='MIT',
     author='Matthew Tardiff',
@@ -16,11 +15,13 @@ setup(
         'docopt',
         'Jinja2',
         'pyparsing',
-        'temporary',),
+        'temporary>=3,<4',),
     tests_require=(
+        'contextlib2',
         'mock',
-        'nose',
-        'temporary'),
+        'pathlib2',
+        'pytest',
+        'temporary>=3,<4'),
     entry_points={
         'console_scripts': (
             'bashup = bashup.__main__:main',)},

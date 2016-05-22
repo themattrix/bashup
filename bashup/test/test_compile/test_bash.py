@@ -1,5 +1,4 @@
-from nose.tools import eq_
-from bashup.compile import bash
+from ...compile import bash
 
 
 def test_compile_to_bash():
@@ -8,8 +7,6 @@ def test_compile_to_bash():
         lambda x: 'B(' + x + ')',
         lambda x: 'C(' + x + ')',)
 
-    actual = bash.compile_to_bash(
-        'bashup_str',
-        compilers=fake_compilers)
+    actual = bash.compile_to_bash('bashup_str', compilers=fake_compilers)
 
-    eq_(actual, 'C(B(A(bashup_str)))')
+    assert actual == 'C(B(A(bashup_str)))'

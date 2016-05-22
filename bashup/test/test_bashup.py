@@ -1,60 +1,54 @@
 import subprocess
 import os
-from os.path import join
-from itertools import product
-from glob import glob
-from textwrap import dedent
+import itertools
+import textwrap
 
-from nose.plugins.skip import SkipTest
-from nose.tools import eq_
-from temporary import temp_file, temp_dir
+import pathlib2 as pathlib
+import pytest
+import temporary
 
-from bashup.test.common import assert_eq
+from .. import test
 
 
-# Compile some bashup and run it against multiple versions of bash. The
-# versions are expected to be found in $BASH_VERSIONS_DIR. If none are
-# found, or the environment variable is not set, the tests are skipped.
+# Compile some bashup and run it against multiple versions of bash. The versions are expected to be found in
+# $BASH_VERSIONS_DIR. If none are found, or the environment variable is not set, the tests are skipped.
 def test_compiled_bash():  # pragma: no cover
     bash_binaries = __find_bash_binaries()
 
     if not bash_binaries:
-        raise SkipTest('bash executable not found')
+        pytest.skip('bash executable not found')
 
     for bash_binary in bash_binaries:
-        yield (
-            __assert_compiled_bash,
-            bash_binary,
-            __BASHUP_STR,
-            __EXPECTED_OUTPUT,
-            55)
+        yield __assert_compiled_bash, bash_binary, __BASHUP_STR, __EXPECTED_OUTPUT, 55
 
 
-# Compile some bashup and run it! This will only work if bash exists on the
-# system. Otherwise the test is skipped.
+# Compile some bashup and run it! This will only work if bash exists on the system. Otherwise the test is skipped.
 def test_direct_run():  # pragma: no cover
     if not __is_bash_in_path():
-        raise SkipTest('bash executable not found')
+        pytest.skip('bash executable not found')
 
-    with temp_file(__BASHUP_STR) as in_file:
+    if not __is_bashup_in_path():
+        pytest.skip('bashup executable not found')
+
+    with temporary.temp_file(__BASHUP_STR) as in_file:
         p = subprocess.Popen(
-            args=('bashup', '--run', in_file),
+            args=('bashup', '--run', str(in_file)),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE)
 
-        stdout, _ = [o.decode('UTF-8').strip() for o in p.communicate()]
+        stdout, _ = [o.decode('utf-8').strip() for o in p.communicate()]
 
-    assert_eq(stdout, __EXPECTED_OUTPUT)
-    eq_(p.returncode, 55)
+        test.assert_eq(stdout, __EXPECTED_OUTPUT)
+    assert p.returncode == 55
 
 
 def test_docopt():  # pragma: no cover
     bash_binaries = __find_bash_binaries()
 
     if not bash_binaries:
-        raise SkipTest('bash executable not found')
+        pytest.skip('bash executable not found')
 
-    docopt_str = dedent("""
+    docopt_str = textwrap.dedent("""
         #!/bin/bash
         #
         # Naval Fate.
@@ -99,7 +93,7 @@ def test_docopt():  # pragma: no cover
 
     args_and_expected_output = (
         (('ship', 'new', '  ship  name'),
-         dedent("""
+         textwrap.dedent("""
             args=(
                 [0]=ship
                 [1]=new
@@ -108,7 +102,7 @@ def test_docopt():  # pragma: no cover
          """).strip()),
 
         (('ship', '  ship  name', 'move', '-100', '200', '--speed=5.5'),
-         dedent("""
+         textwrap.dedent("""
             args=(
                 [0]=ship
                 [1]=\\ \\ ship\\ \\ name
@@ -120,23 +114,17 @@ def test_docopt():  # pragma: no cover
          """).strip()),
     )
 
-    parameters = product(bash_binaries, args_and_expected_output)
+    parameters = itertools.product(bash_binaries, args_and_expected_output)
 
     for bash_binary, (script_args, expected_output) in parameters:
-        yield (
-            __assert_compiled_bash,
-            bash_binary,
-            docopt_str,
-            expected_output,
-            expected_return_code,
-            script_args)
+        yield __assert_compiled_bash, bash_binary, docopt_str, expected_output, expected_return_code, script_args
 
 
 #
 # Test Helpers
 #
 
-__BASHUP_STR = dedent("""
+__BASHUP_STR = textwrap.dedent("""
     #!/bin/bash
 
     @fn hi greeting='Hello', target='World' {
@@ -182,7 +170,7 @@ __EXPECTED_OUTPUT = '\n'.join((
 
 def __find_bash_binaries():
     try:
-        return tuple(glob(join(os.environ['BASH_VERSIONS_DIR'], 'bash*')))
+        return tuple((str(p) for p in pathlib.Path(os.environ['BASH_VERSIONS_DIR']).glob('bash*')))
     except KeyError:  # pragma: no cover
         return ()     # pragma: no cover
 
@@ -195,7 +183,15 @@ def __is_bash_in_path():
         return False                                    # pragma: no cover
 
 
-@temp_dir(make_cwd=True)
+def __is_bashup_in_path():
+    try:
+        subprocess.check_call(('bashup', '--version'))
+        return True                                     # pragma: no cover
+    except (subprocess.CalledProcessError, OSError):    # pragma: no cover
+        return False                                    # pragma: no cover
+
+
+@temporary.temp_dir(make_cwd=True)
 def __assert_compiled_bash(
         bash_binary,
         bashup_str,
@@ -203,10 +199,10 @@ def __assert_compiled_bash(
         expected_return_code,
         script_args=()):                                # pragma: no cover
 
-    with temp_file(bashup_str) as in_file:
+    with temporary.temp_file(bashup_str) as in_file:
         subprocess.check_call(args=(
             'bashup',
-            '--in', in_file,
+            '--in', str(in_file),
             '--out', 'out.sh'))
 
     p = subprocess.Popen(
@@ -216,5 +212,5 @@ def __assert_compiled_bash(
 
     stdout, _ = [o.decode('UTF-8').strip() for o in p.communicate()]
 
-    assert_eq(stdout, expected_output)
-    eq_(p.returncode, expected_return_code)
+    test.assert_eq(stdout, expected_output)
+    assert p.returncode == expected_return_code

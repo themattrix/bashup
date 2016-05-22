@@ -1,147 +1,128 @@
+import contextlib
+import itertools
 import re
-from contextlib import contextmanager
-from glob import glob
-from itertools import product
-from os.path import abspath, dirname, join
 
-from mock import call, Mock
-from nose.tools import eq_, raises
-from temporary import temp_file
+import mock
+import pathlib2 as pathlib
+import pytest
+import temporary
 
-from bashup.__main__ import compile_file, main, run_file
-from bashup.test.common import assert_eq, captured_stdout
+from .. import __main__
+from .. import test
 
 
-def test_help():
-    @raises(SystemExit)
-    def assert_help(argv):
-        with captured_stdout() as stdout:
+DATA_DIR = pathlib.Path(__file__).parent / 'data'
+
+
+@pytest.mark.parametrize('argv', (['-h'], ['--help']))
+def test_help(argv):
+    with pytest.raises(SystemExit):
+        with test.captured_stdout() as stdout:
             try:
-                main(argv)
+                __main__.main(argv)
             except SystemExit:
                 __assert_in('Usage:', stdout.getvalue())
                 raise
         # pylint: disable=superfluous-parens
         print(stdout.getvalue())  # pragma: no cover
 
-    for a in (['-h'], ['--help']):
-        yield assert_help, a
 
-
-@raises(SystemExit)
 def test_version():
-    with captured_stdout() as stdout:
-        try:
-            main(['--version'])
-        except SystemExit:
-            __assert_regex_match(
-                r'Bashup \d+\.\d+\.\d+',
-                stdout.getvalue().strip())
-            raise
-    # pylint: disable=superfluous-parens
-    print(stdout.getvalue())  # pragma: no cover
+    with pytest.raises(SystemExit):
+        with test.captured_stdout() as stdout:
+            try:
+                __main__.main(['--version'])
+            except SystemExit:
+                __assert_regex_match(
+                    r'Bashup \d+\.\d+\.\d+',
+                    stdout.getvalue().strip())
+                raise
+        # pylint: disable=superfluous-parens
+        print(stdout.getvalue())  # pragma: no cover
 
 
-def test_real_file_scenarios():
-    data_dir = join(dirname(abspath(__file__)), 'data')
+@pytest.mark.parametrize('in_file,expected_file', zip(
+    DATA_DIR.glob('*.bashup'),
+    DATA_DIR.glob('*.sh'),
+))
+def test_real_file_scenarios(in_file, expected_file):
+    with expected_file.open() as f:
+        expected_stdout = f.read()
 
-    test_scenarios = zip(
-        glob(join(data_dir, '*.bashup')),
-        glob(join(data_dir, '*.sh')))
+    with test.captured_stdout() as stdout:
+        __main__.main(['--in', str(in_file)])
 
-    def assert_compile_scenario(in_file, expected_file):
-        with open(expected_file) as f:
-            expected_stdout = f.read()
-        with captured_stdout() as stdout:
-            main(['--in', in_file])
-        assert_eq(stdout.getvalue().strip(), expected_stdout.strip())
-
-    for i, o in test_scenarios:
-        yield assert_compile_scenario, i, o
+        test.assert_eq(stdout.getvalue().strip(), expected_stdout.strip())
 
 
 def test_compilation_writing_to_file():
-    with temp_file('to_compile') as in_file:
-        with temp_file() as out_file:
-            compile_file(
+    with temporary.temp_file('to_compile') as in_file:
+        with temporary.temp_file() as out_file:
+            __main__.compile_file(
                 in_file=in_file,
                 out_file=out_file,
                 compile_fn=lambda x: 'Compiled(' + x + ')')
-            with open(out_file) as f:
-                eq_(f.read(), 'Compiled(to_compile)')
+            with open(str(out_file)) as f:
+                assert f.read() == 'Compiled(to_compile)'
 
 
 def test_compilation_writing_to_stdout():
-    with temp_file('to_compile') as in_file:
-        with captured_stdout() as stdout:
-            compile_file(
+    with temporary.temp_file('to_compile') as in_file:
+        with test.captured_stdout() as stdout:
+            __main__.compile_file(
                 in_file=in_file,
                 out_file='-',
                 compile_fn=lambda x: 'Compiled(' + x + ')')
-        eq_(stdout.getvalue().strip(), 'Compiled(to_compile)')
+        assert stdout.getvalue().strip() == 'Compiled(to_compile)'
 
 
 def test_run_file():
-    @contextmanager
+    @contextlib.contextmanager
     def temp_file_ctx(run_str):
         yield 'Temp(' + run_str + ')'
 
-    with temp_file('to_compile') as to_run:
-        actual = run_file(
+    with temporary.temp_file('to_compile') as to_run:
+        actual = __main__.run_file(
             to_run=to_run,
             args=['one', 'two'],
             compile_fn=lambda x: 'Compiled(' + x + ')',
             run_fn=lambda x: 'Ran(' + str(x) + ')',
             temp_file_ctx=temp_file_ctx)
 
-    eq_(actual, "Ran(('bash', 'Temp(Compiled(to_compile))', 'one', 'two'))")
+    assert actual == "Ran(('bash', 'Temp(Compiled(to_compile))', 'one', 'two'))"
 
 
-def test_main_routes_to_run():
-    run_flags = ('-r', '--run')
+@pytest.mark.parametrize('run_flag', ('-r', '--run'))
+def test_main_routes_to_run(run_flag):
+    master_mock = mock.Mock()
+    master_mock.run_fn.return_value = 'run-return'
 
-    def assert_main_routes_to_run(run_flag):
-        master_mock = Mock()
-        master_mock.run_fn.return_value = 'run-return'
+    retval = __main__.main(
+        argv=[run_flag, 'my-script', '--', 'one', '--two', '-3', '--', 'five'],
+        run_fn=master_mock.run_fn,
+        compile_fn=master_mock.compile_fn)
 
-        retval = main(
-            argv=[
-                run_flag, 'my-script',
-                '--',
-                'one', '--two', '-3', '--', 'five'],
-            run_fn=master_mock.run_fn,
-            compile_fn=master_mock.compile_fn)
-
-        eq_(retval, 'run-return')
-        eq_(tuple(master_mock.mock_calls), (
-            call.run_fn(
-                to_run='my-script',
-                args=('one', '--two', '-3', '--', 'five')),))
-
-    for f in run_flags:
-        yield assert_main_routes_to_run, f
+    assert retval == 'run-return'
+    assert tuple(master_mock.mock_calls) == (
+        mock.call.run_fn(
+            to_run='my-script',
+            args=('one', '--two', '-3', '--', 'five')),)
 
 
-def test_main_routes_to_compile():
-    in_flags = ('-i', '--in')
-    out_flags = ('-o', '--out')
+@pytest.mark.parametrize('in_flag,out_flag', itertools.product(('-i', '--in'), ('-o', '--out')))
+def test_main_routes_to_compile(in_flag, out_flag):
+    master_mock = mock.Mock()
 
-    def assert_main_routes_to_compile(in_flag, out_flag):
-        master_mock = Mock()
+    retval = __main__.main(
+        argv=[in_flag, 'in-file', out_flag, 'out-file'],
+        run_fn=master_mock.run_fn,
+        compile_fn=master_mock.compile_fn)
 
-        retval = main(
-            argv=[in_flag, 'in-file', out_flag, 'out-file'],
-            run_fn=master_mock.run_fn,
-            compile_fn=master_mock.compile_fn)
-
-        eq_(retval, 0)
-        eq_(tuple(master_mock.mock_calls), (
-            call.compile_fn(
-                in_file='in-file',
-                out_file='out-file'),))
-
-    for i, o in product(in_flags, out_flags):
-        yield assert_main_routes_to_compile, i, o
+    assert retval == 0
+    assert tuple(master_mock.mock_calls) == (
+        mock.call.compile_fn(
+            in_file='in-file',
+            out_file='out-file'),)
 
 
 #

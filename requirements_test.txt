@@ -1,2 +1,4 @@
 -r requirements.txt
+contextlib2
 mock
+pathlib2

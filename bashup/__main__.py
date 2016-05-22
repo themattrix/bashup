@@ -15,48 +15,44 @@ Options:
 import subprocess
 import sys
 
-from docopt import docopt
-from temporary import temp_file
+import docopt
+import temporary
 
-from bashup.compile.bash import compile_to_bash
+from .compile import bash
 
 
-def compile_file(in_file, out_file, compile_fn=compile_to_bash):
+def compile_file(in_file, out_file, compile_fn=bash.compile_to_bash):
     """
-    Compile the in_file and write it to the out_file. If out_file is '-',
-    then the compiled code is written to stdout instead.
+    Compile the in_file and write it to the out_file. If out_file is
+    '-', then the compiled code is written to stdout instead.
     """
-    with open(in_file) as f:
+    with open(str(in_file)) as f:
         in_str = f.read()
 
     out_str = compile_fn(in_str)
 
-    if out_file == '-':
+    if str(out_file) == '-':
         print(out_str)  # pylint: disable=superfluous-parens
     else:
-        with open(out_file, 'wb') as f:
-            f.write(out_str.encode('UTF-8'))
+        with open(str(out_file), 'wb') as f:
+            f.write(out_str.encode('utf-8'))
 
 
-def run_file(
-        to_run,
-        args,
-        compile_fn=compile_to_bash,
-        run_fn=subprocess.call,
-        temp_file_ctx=temp_file):
+def run_file(to_run, args, compile_fn=bash.compile_to_bash, run_fn=subprocess.call, temp_file_ctx=temporary.temp_file):
     """
-    Compile the to_run file, write it to a temporary file, and run it with
-    bash. Any additional parameters to bashup are passed along to the script.
+    Compile the to_run file, write it to a temporary file, and run it
+    with bash. Any additional parameters to bashup are passed along to
+    the script.
     """
-    with open(to_run) as f:
+    with open(str(to_run)) as f:
         run_str = f.read()
 
     with temp_file_ctx(compile_fn(run_str)) as script:
-        return run_fn(('bash', script) + tuple(args))
+        return run_fn(('bash', str(script)) + tuple(args))
 
 
 def main(argv=None, run_fn=run_file, compile_fn=compile_file):
-    args = docopt(__doc__, argv, version='Bashup 2.0.0')
+    args = docopt.docopt(__doc__, argv, version='Bashup 3.0.0')
 
     if args['--in'] is None:
         return run_fn(to_run=args['--run'], args=tuple(args['<arg>']))

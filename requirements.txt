@@ -1,4 +1,4 @@
 docopt
 Jinja2
 pyparsing
-temporary
+temporary>=3,<4

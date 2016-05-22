@@ -5,7 +5,7 @@ import textwrap
 
 import jinja2
 
-from bashup.parse.fn import FN, FnSpec
+from ... import parse
 
 
 def compile_fns_to_bash(bashup_str):
@@ -16,10 +16,10 @@ def compile_fns_to_bash(bashup_str):
     """
     def generate_slices():
         last = 0
-        scanner = FN.parseWithTabs().scanString(bashup_str)
+        scanner = parse.FN.parseWithTabs().scanString(bashup_str)
 
         for parse_result, start, end in scanner:
-            fn_spec = FnSpec.from_parse_result(parse_result)
+            fn_spec = parse.FnSpec.from_parse_result(parse_result)
             compiled = compile_fn_spec_to_bash(fn_spec)
             initial_indent, body_indent = __guess_indentation(
                 before_fn=bashup_str[last:start],
