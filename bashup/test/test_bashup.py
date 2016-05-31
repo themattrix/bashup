@@ -191,7 +191,7 @@ def __is_bashup_in_path():
         return False                                    # pragma: no cover
 
 
-@temporary.temp_dir(make_cwd=True)
+@temporary.in_temp_dir()
 def __assert_compiled_bash(
         bash_binary,
         bashup_str,
