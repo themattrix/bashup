@@ -1,8 +1,8 @@
-from textwrap import dedent
+import textwrap
 
-from bashup.parse.fn import FnSpec, ArgSpec
-from bashup.compile.elements import fn
-from bashup.test.common import assert_eq
+from ...compile import elements
+from ... import parse
+from ... import test
 
 
 #
@@ -10,22 +10,22 @@ from bashup.test.common import assert_eq
 #
 
 def test_compile_fn_spec_to_bash_without_args():
-    expected = dedent("""
+    expected = textwrap.dedent("""
         #
         # usage: hello [ARGS]
         #
         hello() {
     """).strip()
 
-    actual = fn.compile_fn_spec_to_bash(fn_spec=FnSpec(
+    actual = elements.compile_fn_spec_to_bash(fn_spec=parse.FnSpec(
         name='hello',
         args=()))
 
-    assert_eq(actual, expected)
+    test.assert_eq(actual, expected)
 
 
 def test_compile_fn_spec_to_bash_with_args():
-    expected = dedent("""
+    expected = textwrap.dedent("""
         #
         # usage: enable_ramdisk --size=<SIZE> [--path=<PATH>] [ARGS]
         #
@@ -61,16 +61,16 @@ def test_compile_fn_spec_to_bash_with_args():
             shift 2
     """).lstrip()
 
-    actual = fn.compile_fn_spec_to_bash(fn_spec=FnSpec(
+    actual = elements.compile_fn_spec_to_bash(fn_spec=parse.FnSpec(
         name='enable_ramdisk',
-        args=(ArgSpec(name='size', value=None),
-              ArgSpec(name='path', value="'/ramdisk'"))))
+        args=(parse.FnArgSpec(name='size', value=None),
+              parse.FnArgSpec(name='path', value="'/ramdisk'"))))
 
-    assert_eq(actual, expected)
+    test.assert_eq(actual, expected)
 
 
 def test_compile_fns_to_bash_single_fn_without_args():
-    expected = dedent("""
+    expected = textwrap.dedent("""
         #
         # usage: hello [ARGS]
         #
@@ -79,17 +79,17 @@ def test_compile_fns_to_bash_single_fn_without_args():
         }
     """).strip()
 
-    actual = fn.compile_fns_to_bash(bashup_str=dedent("""
+    actual = elements.compile_fns_to_bash(bashup_str=textwrap.dedent("""
         @fn hello {
             echo "hello!"
         }
     """).strip())
 
-    assert_eq(actual, expected)
+    test.assert_eq(actual, expected)
 
 
 def test_compile_fns_to_bash_multiple_fns_without_args():
-    expected = dedent("""
+    expected = textwrap.dedent("""
         #!/bin/bash
 
         set -e -o pipefail
@@ -111,7 +111,7 @@ def test_compile_fns_to_bash_multiple_fns_without_args():
         world
     """).strip()
 
-    actual = fn.compile_fns_to_bash(bashup_str=dedent("""
+    actual = elements.compile_fns_to_bash(bashup_str=textwrap.dedent("""
         #!/bin/bash
 
         set -e -o pipefail
@@ -127,11 +127,11 @@ def test_compile_fns_to_bash_multiple_fns_without_args():
         world
     """).strip())
 
-    assert_eq(actual, expected)
+    test.assert_eq(actual, expected)
 
 
 def test_compile_fns_to_bash_multiple_fns_with_args():
-    expected = dedent("""
+    expected = textwrap.dedent("""
         #!/bin/bash
 
         set -e -o pipefail
@@ -191,7 +191,7 @@ def test_compile_fns_to_bash_multiple_fns_with_args():
         enable_ramdisk --size="4G"
     """).strip()
 
-    actual = fn.compile_fns_to_bash(bashup_str=dedent("""
+    actual = elements.compile_fns_to_bash(bashup_str=textwrap.dedent("""
         #!/bin/bash
 
         set -e -o pipefail
@@ -215,11 +215,11 @@ def test_compile_fns_to_bash_multiple_fns_with_args():
         enable_ramdisk --size="4G"
     """).strip())
 
-    assert_eq(actual, expected)
+    test.assert_eq(actual, expected)
 
 
 def test_compile_fns_to_bash_custom_indents():
-    expected = dedent("""
+    expected = textwrap.dedent("""
         {
         \t#
         \t# usage: enable_ramdisk --size=<SIZE> [--path=<PATH>] [ARGS]
@@ -276,7 +276,7 @@ def test_compile_fns_to_bash_custom_indents():
         }
     """).strip()
 
-    actual = fn.compile_fns_to_bash(bashup_str=dedent("""
+    actual = elements.compile_fns_to_bash(bashup_str=textwrap.dedent("""
         {
         \t@fn enable_ramdisk size, path='/ramdisk' {
         \t if ! grep "^tmpfs ${path}" /etc/fstab; then
@@ -297,11 +297,11 @@ def test_compile_fns_to_bash_custom_indents():
         }
     """).strip())
 
-    assert_eq(actual, expected)
+    test.assert_eq(actual, expected)
 
 
 def test_compile_fns_to_bash_custom_indents_with_blank_lines():
-    expected = dedent("""
+    expected = textwrap.dedent("""
         {
         \t#
         \t# usage: enable_ramdisk --size=<SIZE> [--path=<PATH>] [ARGS]
@@ -348,7 +348,7 @@ def test_compile_fns_to_bash_custom_indents_with_blank_lines():
         }
     """).strip()
 
-    actual = fn.compile_fns_to_bash(bashup_str=dedent("""
+    actual = elements.compile_fns_to_bash(bashup_str=textwrap.dedent("""
         {
         \t@fn enable_ramdisk size, path='/ramdisk' {
 
@@ -362,11 +362,11 @@ def test_compile_fns_to_bash_custom_indents_with_blank_lines():
         }
     """).strip())
 
-    assert_eq(actual, expected)
+    test.assert_eq(actual, expected)
 
 
 def test_compile_fns_to_bash_nested_fns():
-    expected = dedent("""
+    expected = textwrap.dedent("""
         #
         # usage: level_1 [ARGS]
         #
@@ -385,7 +385,7 @@ def test_compile_fns_to_bash_nested_fns():
         }
     """).strip()
 
-    actual = fn.compile_fns_to_bash(bashup_str=dedent("""
+    actual = elements.compile_fns_to_bash(bashup_str=textwrap.dedent("""
         @fn level_1 {
             @fn level_2 {
                 @fn level_3 {
@@ -395,4 +395,4 @@ def test_compile_fns_to_bash_nested_fns():
         }
     """).strip())
 
-    assert_eq(actual, expected)
+    test.assert_eq(actual, expected)

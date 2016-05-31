@@ -1,8 +1,8 @@
-from bashup.compile.elements.fn import compile_fns_to_bash
+from .elements import fn
 
 
 ALL_COMPILERS = (
-    compile_fns_to_bash,)
+    fn.compile_fns_to_bash,)
 
 
 def compile_to_bash(bashup_str, compilers=ALL_COMPILERS):
