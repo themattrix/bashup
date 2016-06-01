@@ -137,6 +137,16 @@ See `this document for planned features`_.
 Changelog
 ---------
 
+**2.0.2**
+
+- Fixed PyPI release.
+
+
+**2.0.1**
+
+- Fixed - |Issue9|__
+
+
 **2.0.0**
 
 - Fixed - |Issue7|__
@@ -191,6 +201,9 @@ Changelog
 
 
 .. Issues
+
+.. |Issue9| replace:: Issue #9: "Misc updates"
+__ https://github.com/themattrix/bashup/issues/9
 
 .. |Issue7| replace:: Issue #7: "Named arguments in functions should use --arg=value instead of --arg value"
 __ https://github.com/themattrix/bashup/issues/7

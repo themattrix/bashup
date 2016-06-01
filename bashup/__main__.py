@@ -52,7 +52,7 @@ def run_file(to_run, args, compile_fn=bash.compile_to_bash, run_fn=subprocess.ca
 
 
 def main(argv=None, run_fn=run_file, compile_fn=compile_file):
-    args = docopt.docopt(__doc__, argv, version='Bashup 2.0.1')
+    args = docopt.docopt(__doc__, argv, version='Bashup 2.0.2')
 
     if args['--in'] is None:
         return run_fn(to_run=args['--run'], args=tuple(args['<arg>']))

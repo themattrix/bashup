@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='bashup',
-    version='2.0.1',
+    version='2.0.2',
     packages=(
         'bashup',
         'bashup.compile',
